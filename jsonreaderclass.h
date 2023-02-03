@@ -20,17 +20,28 @@
 #include "QSortFilterProxyModel"
 
 
-
+enum SigType
+{
+    REAL=0,
+    INT=1,
+    FLAG=2,
+    META=3,
+    TIME=4,
+    INVALID=5
+};
 class JSONReaderClass
 {
 public:
     JSONReaderClass();
     QJsonDocument readJSON();
+
     void saveJSON(QString saveFileName,QJsonDocument doc);
     QJsonDocument getEditJSON(QString saveFileName);
     QJsonDocument currentDoc;
     QJsonObject currentJSONObject;
     QFile file;
+    SigType getType(QStandardItem* item);
+    QJsonObject getObject(QStandardItem* item,SigType type);
 };
 
 #endif // JSONREADERCLASS_H

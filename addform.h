@@ -2,6 +2,9 @@
 #define ADDFORM_H
 
 #include <QDialog>
+#include "jsonreaderclass.h"
+#include "QStringList"
+#include "QStringListModel"
 
 namespace Ui {
 class AddForm;
@@ -17,6 +20,10 @@ public:
 
 private:
     Ui::AddForm *ui;
+    QStringList typeList={"ВЕЩЕСТВЕННОЕ","ФОК","ЦЕЛОЕ","ВРЕМЯ","МЕТАДАННЫЕ"};
+    QStringList byteList={"8","16","32","64","128","256"};
+
+
 };
 
 #endif // ADDFORM_H

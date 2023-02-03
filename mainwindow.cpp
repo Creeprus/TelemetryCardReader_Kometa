@@ -49,7 +49,7 @@ void MainWindow::contextMenuExpand(const QPoint &point)
 
 void MainWindow::SaveJSON()
 {
-    QString saveFileName=QFileDialog::getOpenFileName(
+    QString saveFileName=QFileDialog::getSaveFileName(
                                                        this,
                                                       "Сохранить файл JSON",
                                                       QDir::homePath(),
@@ -58,31 +58,30 @@ void MainWindow::SaveJSON()
     JSONReaderClass json;
 
 
+
    // auto model=ui->treeView->model();
     QStandardItemModel* model=new QStandardItemModel(nullptr);
-    QSortFilterProxyModel* currentModel=new QSortFilterProxyModel();
+
     QJsonDocument doc;
 
     auto abstract_model=ui->treeView->model();
-    currentModel->setSourceModel(abstract_model);
+    model=dynamic_cast<QStandardItemModel*>(abstract_model);
 
-    for (int i=0;i<currentModel->rowCount();i++)
+
+    for (int i=0;i<model->rowCount();i++)
     {
 
-      auto item=  currentModel->data(currentModel->index(i,0));
-    ui->textBrowser->append(item.toByteArray());
-        auto array=item.toJsonArray();
+        auto item=model->item(i,0);
+       QJsonObject obj= json.getObject(item,json.getType(item));
+        qDebug()<<obj;
+        finalArray.append(QJsonValue(obj));
 
-        qDebug()<<item.data();
-        for(int j=0;j<item.toJsonObject().size();j++)
-        {
-            finalArray.append(array.at(j));
-        }
+
 
 
     }
-   model=new QStandardItemModel(abstract_model);
-   // ui->treeView->selectionModel();
+
+
     doc.setArray(finalArray);
 
 
@@ -201,7 +200,8 @@ void MainWindow::ReadTelemetry()
                             for (int ix=0;ix<ar2.size();ix++)
                             {
                                 QStandardItem* item=new QStandardItem(ar2[ix].toVariant().toString());
-                                 currentItem->appendRow(item);
+
+                                currentItem->appendRow(item);
                             }
 
 
