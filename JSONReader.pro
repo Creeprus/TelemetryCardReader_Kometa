@@ -37,3 +37,6 @@ HEADERS += \
 FORMS += \
         mainwindow.ui \
     addform.ui
+
+RESOURCES += \
+    resource.qrc

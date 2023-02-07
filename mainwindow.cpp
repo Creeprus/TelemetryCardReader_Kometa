@@ -7,6 +7,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
  ui->setupUi(this);
+ addform->resize(addform->width(),500);
+ addform->setMaximumHeight(500);
+ addform->setMinimumWidth(800);
  contextMenu=new QMenu(ui->treeView);
 
  contextMenu->addAction("Добавить правило",this,
@@ -54,6 +57,8 @@ void MainWindow::SaveJSON()
                                                       "Сохранить файл JSON",
                                                       QDir::homePath(),
                                                      "JSON (*.json)");
+    if(saveFileName!="")
+    {
     QJsonArray finalArray;
     JSONReaderClass json;
 
@@ -90,6 +95,7 @@ void MainWindow::SaveJSON()
 
 
     json.saveJSON(saveFileName,doc);
+    }
 }
 
 void MainWindow::addTelemetryRule()
@@ -249,7 +255,8 @@ void MainWindow::on_telemetryReadButton_clicked()
 
 void MainWindow::showAddForm()
 {
-    addform->show();
+
+    addform->exec();
 }
 
 void MainWindow::deleteTelemetryRule()
@@ -283,3 +290,9 @@ void MainWindow::deleteTelemetryRule()
 //    ui->treeView->setModel(model);
 
 //}
+
+
+void MainWindow::on_MainWindow_destroyed(QObject *arg1)
+{
+
+}

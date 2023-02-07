@@ -413,7 +413,10 @@
    <enum>Qt::TabFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Редактор карт телеметрии</string>
+  </property>
+  <property name="toolTipDuration">
+   <number>-1</number>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -439,9 +442,6 @@
        <bool>true</bool>
       </property>
      </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget" native="true"/>
     </item>
     <item>
      <spacer name="horizontalSpacer">
@@ -478,7 +478,7 @@
      <x>0</x>
      <y>0</y>
      <width>996</width>
-     <height>21</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>

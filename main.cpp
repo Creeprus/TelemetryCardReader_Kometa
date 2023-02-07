@@ -1,11 +1,17 @@
 #include "mainwindow.h"
 #include <QApplication>
 
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-
+    QFile style(":/наистерзание.json");
+    style.open(QIODevice::ReadOnly);
+    auto currentStyle= style.readAll();
+    // Стиль для приложения
+    a.setStyleSheet(currentStyle);
+    style.close();
     return a.exec();
 }

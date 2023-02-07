@@ -18,9 +18,16 @@ public:
     explicit AddForm(QWidget *parent = 0);
     ~AddForm();
 
+private slots:
+    void on_groupBox_toggled(bool arg1);
+
+    void on_comboBox_currentTextChanged(const QString &arg1);
+
+
+
 private:
     Ui::AddForm *ui;
-    QStringList typeList={"ВЕЩЕСТВЕННОЕ","ФОК","ЦЕЛОЕ","ВРЕМЯ","МЕТАДАННЫЕ"};
+    QStringList typeList={"ЦЕЛОЕ","ФОК","ВЕЩЕСТВЕННОЕ","ВРЕМЯ","МЕТАДАННЫЕ"};
     QStringList byteList={"8","16","32","64","128","256"};
 
 

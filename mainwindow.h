@@ -54,6 +54,8 @@ private slots:
 
 
 
+
+    void on_MainWindow_destroyed(QObject *arg1);
 };
 
 #endif // MAINWINDOW_H
