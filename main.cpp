@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-    QFile style(":/наистерзание.json");
+    QFile style(":/Styles/Diffnes.qss");
     style.open(QIODevice::ReadOnly);
     auto currentStyle= style.readAll();
     // Стиль для приложения

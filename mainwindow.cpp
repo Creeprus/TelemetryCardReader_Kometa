@@ -149,7 +149,7 @@ void MainWindow::ReadTelemetry()
 
             obj=json_aray[i].toObject();
             auto head = obj.value("устройство").toVariant().toString();
-            if(head.isEmpty())
+            if(head=="")
             {
                 auto head = obj.value("id времени").toVariant().toString();
                 itemHeader=new QStandardItem("Сигнал устройства с id "+head);
@@ -255,7 +255,7 @@ void MainWindow::on_telemetryReadButton_clicked()
 
 void MainWindow::showAddForm()
 {
-
+    addform->model=dynamic_cast<QStandardItemModel*>( ui->treeView->model());
     addform->exec();
 }
 

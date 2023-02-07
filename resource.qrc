@@ -1,3 +1,9 @@
 <RCC>
-    <qresource prefix="/"/>
+    <qresource prefix="/">
+        <file>Styles/ExcelOffice.qss</file>
+        <file>Styles/Fibers.qss</file>
+        <file>Styles/SyNet.qss</file>
+        <file>Styles/Cstartpage.qss</file>
+        <file>Styles/Diffnes.qss</file>
+    </qresource>
 </RCC>

@@ -26,6 +26,8 @@ public:
     QAction* addTelemetryRuleAction;
     QStandardItemModel* currentModel;
 
+    QStandardItemModel* returnModel;
+
 
 
 private:
