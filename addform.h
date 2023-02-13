@@ -8,6 +8,7 @@
 #include "QTableWidget"
 #include "QTableWidgetItem"
 #include "QSpinBox"
+#include "QtMath"
 
 static const QStringList SigTypeAdd{"ЦЕЛОЕ","ВЕЩЕСТВЕННОЕ","ФОК","МЕТАДАННЫЕ","ВРЕМЯ"};
 namespace Ui {
@@ -24,6 +25,8 @@ public:
    QStandardItemModel* model;
    QStandardItem* itemModel=new QStandardItem();
    QStandardItem* itemToAppend=new QStandardItem();
+   QStringList idsToCheck;
+
 
 private slots:
     void on_groupBox_toggled(bool arg1);
@@ -57,7 +60,7 @@ private slots:
 private:
     Ui::AddForm *ui;
     QStringList typeList={"ЦЕЛОЕ","ФОК","ВЕЩЕСТВЕННОЕ","ВРЕМЯ","МЕТАДАННЫЕ"};
-    QStringList byteList={"4","8","16","32","64","128","256"};
+    QStringList byteList={"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 
 
 };

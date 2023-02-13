@@ -161,6 +161,9 @@
           <height>30</height>
          </size>
         </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
        </widget>
       </item>
       <item row="2" column="0">
@@ -247,11 +250,11 @@
         <attribute name="horizontalHeaderCascadingSectionResizes">
          <bool>false</bool>
         </attribute>
-        <attribute name="horizontalHeaderMinimumSectionSize">
-         <number>60</number>
-        </attribute>
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>120</number>
+        </attribute>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>60</number>
         </attribute>
         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
          <bool>false</bool>
@@ -423,6 +426,9 @@
           <height>20</height>
          </size>
         </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
        </widget>
       </item>
       <item row="4" column="0">
@@ -451,7 +457,7 @@
       <set>Qt::AlignCenter</set>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="14" column="0">
+      <item row="15" column="0">
        <widget class="QLabel" name="label_19">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -508,7 +514,7 @@
         </property>
        </widget>
       </item>
-      <item row="19" column="0">
+      <item row="20" column="0">
        <spacer name="verticalSpacer_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -540,7 +546,7 @@
         </property>
        </widget>
       </item>
-      <item row="15" column="0">
+      <item row="16" column="0">
        <widget class="QTableWidget" name="MKOTableFlag">
         <property name="maximumSize">
          <size>
@@ -573,7 +579,7 @@
         </column>
         <column>
          <property name="text">
-          <string>id значение</string>
+          <string>Набор слов данных</string>
          </property>
         </column>
        </widget>
@@ -597,7 +603,23 @@
         </property>
        </widget>
       </item>
-      <item row="16" column="0">
+      <item row="8" column="0">
+       <widget class="QTextEdit" name="abrevFlag">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>50</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="0">
        <widget class="QLabel" name="label_20">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -616,34 +638,12 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QPlainTextEdit" name="controllerFlag">
+      <item row="13" column="0">
+       <widget class="QComboBox" name="bytesCombobox2">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>30</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="sizeIncrement">
-         <size>
-          <width>0</width>
-          <height>30</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QTextEdit" name="abrevFlag">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>50</verstretch>
          </sizepolicy>
         </property>
         <property name="maximumSize">
@@ -673,12 +673,12 @@
         </property>
        </widget>
       </item>
-      <item row="13" column="0">
-       <widget class="QComboBox" name="bytesCombobox2">
+      <item row="3" column="0">
+       <widget class="QLineEdit" name="nameFlag">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
-          <verstretch>30</verstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="maximumSize">
@@ -689,7 +689,7 @@
         </property>
        </widget>
       </item>
-      <item row="20" column="0">
+      <item row="21" column="0">
        <widget class="Line" name="line_4">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -708,7 +708,7 @@
         </property>
        </widget>
       </item>
-      <item row="17" column="0">
+      <item row="18" column="0">
        <widget class="QTableWidget" name="valuesTableFlag">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -726,7 +726,7 @@
          <enum>Qt::CustomContextMenu</enum>
         </property>
         <property name="rowCount">
-         <number>1</number>
+         <number>0</number>
         </property>
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>120</number>
@@ -737,10 +737,9 @@
         <attribute name="verticalHeaderVisible">
          <bool>false</bool>
         </attribute>
-        <row/>
         <column>
          <property name="text">
-          <string>Числовое значение</string>
+          <string>Номер бита</string>
          </property>
         </column>
         <column>
@@ -748,22 +747,6 @@
           <string>Обозначение</string>
          </property>
         </column>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLineEdit" name="nameFlag">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>30</height>
-         </size>
-        </property>
        </widget>
       </item>
       <item row="1" column="0">
@@ -786,14 +769,42 @@
           <height>30</height>
          </size>
         </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
        </widget>
       </item>
-      <item row="18" column="0">
+      <item row="19" column="0">
        <widget class="QPushButton" name="pushButton_2">
         <property name="text">
          <string>Удалить выбранный элемент</string>
         </property>
        </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QPlainTextEdit" name="controllerFlag">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>30</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="sizeIncrement">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="0">
+       <widget class="QComboBox" name="bytesCombobox2_2"/>
       </item>
      </layout>
     </widget>
@@ -959,6 +970,9 @@
           <height>30</height>
          </size>
         </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -1000,6 +1014,9 @@
           <horstretch>0</horstretch>
           <verstretch>30</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimum">
+         <number>1</number>
         </property>
        </widget>
       </item>
@@ -1134,9 +1151,6 @@
       <string>Добавить правило</string>
      </property>
     </widget>
-   </item>
-   <item>
-    <widget class="QTreeView" name="treeView"/>
    </item>
   </layout>
  </widget>

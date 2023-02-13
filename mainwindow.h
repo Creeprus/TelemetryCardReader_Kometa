@@ -27,7 +27,7 @@ public:
     QStandardItemModel* currentModel;
 
     QStandardItemModel* returnModel;
-
+    QStringList ids;
 
 
 private:

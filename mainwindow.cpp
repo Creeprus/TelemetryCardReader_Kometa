@@ -1,30 +1,27 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "jsonreaderclass.h"
+#include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
- ui->setupUi(this);
- addform->resize(addform->width(),500);
- addform->setMaximumHeight(500);
- addform->setMinimumWidth(800);
- contextMenu=new QMenu(ui->treeView);
+    ui->setupUi(this);
+    addform->resize(addform->width(), 500);
+    addform->setMaximumHeight(500);
+    addform->setMinimumWidth(800);
+    contextMenu = new QMenu(ui->treeView);
 
- contextMenu->addAction("Добавить правило",this,
-                        SLOT(showAddForm()));
+    contextMenu->addAction("Добавить правило", this,
+        SLOT(showAddForm()));
 
- contextMenu->addAction("Удалить правило",this,
-                        SLOT(deleteTelemetryRule()));
+    contextMenu->addAction("Удалить правило", this,
+        SLOT(deleteTelemetryRule()));
 
+    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
- ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-
-
-
- connect(ui->treeView,&QTreeView::customContextMenuRequested,this,
-         &MainWindow::contextMenuExpand);
+    connect(ui->treeView, &QTreeView::customContextMenuRequested, this,
+        &MainWindow::contextMenuExpand);
 }
 
 MainWindow::~MainWindow()
@@ -32,92 +29,70 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::contextMenuExpand(const QPoint &point)
+void MainWindow::contextMenuExpand(const QPoint& point)
 {
-    QModelIndex curIndex=ui->treeView->indexAt(point);
-    QModelIndex index=curIndex.sibling(curIndex.row(),0);
+    QModelIndex curIndex = ui->treeView->indexAt(point);
+    QModelIndex index = curIndex.sibling(curIndex.row(), 0);
 
-    if(index.isValid())
-    {
+    if (index.isValid()) {
 
-      auto cur=QCursor::pos();
-      contextMenu->move(cur);
-      contextMenu->show();
-
+        auto cur = QCursor::pos();
+        contextMenu->move(cur);
+        contextMenu->show();
     }
-
 }
-
-
 
 void MainWindow::SaveJSON()
 {
-    QString saveFileName=QFileDialog::getSaveFileName(
-                                                       this,
-                                                      "Сохранить файл JSON",
-                                                      QDir::homePath(),
-                                                     "JSON (*.json)");
-    if(saveFileName!="")
-    {
-    QJsonArray finalArray;
-    JSONReaderClass json;
+    QString saveFileName = QFileDialog::getSaveFileName(
+        this,
+        "Сохранить файл JSON",
+        QDir::homePath(),
+        "JSON (*.json)");
+    if (saveFileName != "") {
+        QJsonArray finalArray;
+        JSONReaderClass json;
 
+        // auto model=ui->treeView->model();
+        QStandardItemModel* model = new QStandardItemModel(nullptr);
 
+        QJsonDocument doc;
 
-   // auto model=ui->treeView->model();
-    QStandardItemModel* model=new QStandardItemModel(nullptr);
+        auto abstract_model = ui->treeView->model();
+        model = dynamic_cast<QStandardItemModel*>(abstract_model);
 
-    QJsonDocument doc;
+        for (int i = 0; i < model->rowCount(); i++) {
 
-    auto abstract_model=ui->treeView->model();
-    model=dynamic_cast<QStandardItemModel*>(abstract_model);
+            auto item = model->item(i, 0);
+            QJsonObject obj = json.getObject(item, json.getType(item));
+            qDebug() << obj;
+            finalArray.append(QJsonValue(obj));
+        }
 
+        doc.setArray(finalArray);
 
-    for (int i=0;i<model->rowCount();i++)
-    {
-
-        auto item=model->item(i,0);
-       QJsonObject obj= json.getObject(item,json.getType(item));
-        qDebug()<<obj;
-        finalArray.append(QJsonValue(obj));
-
-
-
-
-    }
-
-
-    doc.setArray(finalArray);
-
-
-
-
-
-
-    json.saveJSON(saveFileName,doc);
+        json.saveJSON(saveFileName, doc);
     }
 }
 
 void MainWindow::addTelemetryRule()
 {
 
-    auto model=ui->treeView->model();
-    qDebug()<<model->columnCount();
-
+    auto model = ui->treeView->model();
+    qDebug() << model->columnCount();
 }
 
 void MainWindow::popupForm()
 {
-//    QFrame* popup=new QFrame(this,Qt::Popup|Qt::Window);
-//    popup->resize(300,300);
-//    QLineEdit *tmp=new QLineEdit(popup);
-//    connect(tmp,SIGNAL(returnPressed()),popup,SLOT(hide()));
-//    tmp->setGeometry(50,50,130,30);
-//    tmp->setFocus();
-//    auto cur=QCursor::pos();
-//    popup->move(cur);
-//    popup->show();
-
+    //    QFrame* popup=new QFrame(this,Qt::Popup|Qt::Window);
+    //    popup->resize(300,300);
+    //    QLineEdit *tmp=new QLineEdit(popup);
+    //    connect(tmp,SIGNAL(returnPressed()),popup,SLOT(hide()));
+    //    tmp->setGeometry(50,50,130,30);
+    //    tmp->setFocus();
+    //    auto cur=QCursor::pos();
+    //    popup->move(cur);
+    //    popup->show();
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -125,128 +100,107 @@ void MainWindow::on_pushButton_2_clicked()
     SaveJSON();
 }
 
-
-
 void MainWindow::ReadTelemetry()
 {
 
     JSONReaderClass json;
     QJsonDocument doc;
-    doc=json.readJSON();
-    currentDoc=doc;
+    doc = json.readJSON();
+    currentDoc = doc;
     QJsonObject obj;
-    QStandardItemModel* model=new QStandardItemModel(nullptr);
-    QStandardItem* header=new QStandardItem(json.file.fileName());
+    QStandardItemModel* model = new QStandardItemModel(nullptr);
+    QStandardItem* header = new QStandardItem(json.file.fileName());
 
-    model->setHorizontalHeaderItem(0,header);
-    connect(model,&QStandardItemModel::dataChanged,this,&MainWindow::itemDataValidation);
-    QJsonArray json_aray=currentDoc.array();
+    model->setHorizontalHeaderItem(0, header);
+    connect(model, &QStandardItemModel::dataChanged, this, &MainWindow::itemDataValidation);
+    QJsonArray json_aray = currentDoc.array();
 
-     if(json_aray.isEmpty()==false)
-     {
-         for (int i=0;i<json_aray.size();i++)
-         {
+    if (json_aray.isEmpty() == false) {
+        for (int i = 0; i < json_aray.size(); i++) {
 
-            obj=json_aray[i].toObject();
+            obj = json_aray[i].toObject();
             auto head = obj.value("устройство").toVariant().toString();
-            if(head=="")
-            {
+            if (head == "") {
                 auto head = obj.value("id времени").toVariant().toString();
-                itemHeader=new QStandardItem("Сигнал устройства с id "+head);
+                itemHeader = new QStandardItem("Сигнал устройства с id " + head);
 
+            } else {
+                itemHeader = new QStandardItem("Телеметрия устройства: " + head);
             }
-            itemHeader=new QStandardItem("Телеметрия устройства: "+head);
             itemHeader->setEditable(false);
+
             model->appendRow(itemHeader);
 
-            for(int j=0;j<obj.size();j++)
-            {
-                auto key=obj.keys().at(j);
+            for (int j = 0; j < obj.size(); j++) {
+                auto key = obj.keys().at(j);
                 auto value = obj.value(key);
-                if(value.isString())
-                {
-                    itemToAdd=new QStandardItem(key);
+                if (value.isString()) {
+                    itemToAdd = new QStandardItem(key);
                     itemToAdd->setEditable(true);
                     itemHeader->appendRow(itemToAdd);
                     itemToAdd->appendRow(new QStandardItem(value.toVariant().toString()));
                     itemToAdd->setEditable(false);
 
-                }
-                else if(value.toVariant().toInt())
-                {
-                    itemToAdd=new QStandardItem(key);
+                } else if (value.toVariant().toInt()) {
+                    itemToAdd = new QStandardItem(key);
                     itemToAdd->setEditable(true);
                     itemHeader->appendRow(itemToAdd);
                     itemToAdd->appendRow(new QStandardItem(value.toVariant().toString()));
                     itemToAdd->setEditable(false);
+                    //ids->insert(ids->size(),value.toVariant().toInt());
+                    ids.append(value.toVariant().toString());
 
-                }
-                else if(value.isArray())
-                {
+                } else if (value.isArray()) {
 
-                    if(value[0].isArray())
-                    {
-                        itemToAdd=new QStandardItem(key);
+                    if (value[0].isArray()) {
+                        itemToAdd = new QStandardItem(key);
                         itemToAdd->setEditable(true);
                         itemHeader->appendRow(itemToAdd);
-                        QJsonArray ar=value.toArray();
+                        QJsonArray ar = value.toArray();
 
-                        int j=0;
+                        int j = 0;
 
-                        for (QJsonValue value:ar)
-                        {
-                            QJsonArray ar2=value.toArray();
+                        for (QJsonValue value : ar) {
+                            QJsonArray ar2 = value.toArray();
 
-                            quint16 currentValue=j+1;
+                            quint16 currentValue = j + 1;
 
-                            QStandardItem* currentItem= new QStandardItem(QString("Значение %1").arg(currentValue));
+                            QStandardItem* currentItem = new QStandardItem(QString("Значение %1").arg(currentValue));
                             currentItem->setEditable(false);
                             itemToAdd->appendRow(currentItem);
 
-                            for (int ix=0;ix<ar2.size();ix++)
-                            {
-                                QStandardItem* item=new QStandardItem(ar2[ix].toVariant().toString());
+                            for (int ix = 0; ix < ar2.size(); ix++) {
+                                QStandardItem* item = new QStandardItem(ar2[ix].toVariant().toString());
 
                                 currentItem->appendRow(item);
                             }
 
-
-
                             j++;
                         }
                         itemToAdd->setEditable(false);
-                    }
-                    else
-                    {
-                       itemToAdd=new QStandardItem(key);
-                       itemHeader->appendRow(itemToAdd);
-                       itemToAdd->setEditable(true);
-                       QJsonArray itemArray=value.toArray();
-                       for (int j=0;j<itemArray.count();j++)
-                       {
-                           itemToAdd->appendRow(new QStandardItem(itemArray[j].toVariant().toString()));
-
-                       }
-                       itemToAdd->setEditable(false);
+                    } else {
+                        itemToAdd = new QStandardItem(key);
+                        itemHeader->appendRow(itemToAdd);
+                        itemToAdd->setEditable(true);
+                        QJsonArray itemArray = value.toArray();
+                        for (int j = 0; j < itemArray.count(); j++) {
+                            itemToAdd->appendRow(new QStandardItem(itemArray[j].toVariant().toString()));
+                        }
+                        itemToAdd->setEditable(false);
                     }
                 }
             }
-         }
-           ui->treeView->setModel(model);
-           currentModel=model;
-     }
-
+        }
+        ui->treeView->setModel(model);
+        currentModel = model;
+    }
 }
 
-void MainWindow::itemDataValidation(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+void MainWindow::itemDataValidation(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
 {
-    qDebug()<<topLeft.data();
-    qDebug()<<bottomRight.data();
-
+    qDebug() << topLeft.data();
+    qDebug() << bottomRight.data();
 }
-
-
-
 
 void MainWindow::on_telemetryReadButton_clicked()
 {
@@ -255,29 +209,26 @@ void MainWindow::on_telemetryReadButton_clicked()
 
 void MainWindow::showAddForm()
 {
-    addform->model=dynamic_cast<QStandardItemModel*>( ui->treeView->model());
+    addform->model = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
+    addform->idsToCheck = ids;
     addform->exec();
 }
 
 void MainWindow::deleteTelemetryRule()
 {
 
-    QAbstractItemModel* model=ui->treeView->model();
-    QModelIndex curIndex=ui->treeView->currentIndex();
+    QAbstractItemModel* model = ui->treeView->model();
+    QModelIndex curIndex = ui->treeView->currentIndex();
 
-
-
-     while(curIndex.parent().isValid())
-     {
-         curIndex=curIndex.parent();
-     }
-     int idx=curIndex.row();
-     model->removeRow(idx);
-       // currentModel=model;
-
-
+    while (curIndex.parent().isValid()) {
+        curIndex = curIndex.parent();
+    }
+    int idx = curIndex.row();
+    model->removeRow(idx);
+    // currentModel=model;
+    ids.removeAt(idx);
+    addform->model = dynamic_cast<QStandardItemModel*>(model);
 }
-
 //Построчное выборочное удаление
 //void MainWindow::deleteTelemetryRule()
 //{
@@ -291,8 +242,6 @@ void MainWindow::deleteTelemetryRule()
 
 //}
 
-
-void MainWindow::on_MainWindow_destroyed(QObject *arg1)
+void MainWindow::on_MainWindow_destroyed(QObject* arg1)
 {
-
 }

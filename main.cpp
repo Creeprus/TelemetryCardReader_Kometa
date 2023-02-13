@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     auto currentStyle= style.readAll();
     // Стиль для приложения
     a.setStyleSheet(currentStyle);
+
     style.close();
     return a.exec();
 }
