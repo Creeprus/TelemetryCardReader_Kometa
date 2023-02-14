@@ -141,6 +141,7 @@ void AddForm::on_pushButton_clicked()
             return;
         }
 
+
         QTableWidgetItem* itemMKO1 = ui->MKOTableInt->item(0, 0);
         if (!itemMKO1 || itemMKO1->text().isEmpty()) {
             box->setText("Поля не должны быть пустыми");
@@ -165,7 +166,7 @@ void AddForm::on_pushButton_clicked()
             box->setText("Данные МКО имеют неверный формат");
             box->show();
             return;
-        } else if (mko1 > 30 || mko1 < 1) {
+        } else if (mko1 > mko1Max || mko1 < 1) {
             box->setText("Адрес абонента должен быть не больше 30");
             box->show();
             return;
@@ -175,7 +176,7 @@ void AddForm::on_pushButton_clicked()
             box->setText("Данные МКО имеют неверный формат");
             box->show();
             return;
-        } else if (mko2 > 30 || mko2 < 1) {
+        } else if (mko2 > mko2Max || mko2 < 1) {
             box->setText("Подадрес абонента должен быть не больше 30");
             box->show();
             return;
@@ -185,7 +186,7 @@ void AddForm::on_pushButton_clicked()
             box->setText("Данные МКО имеют неверный формат");
             box->show();
             return;
-        } else if (mko3 > 32 || mko3 < 1) {
+        } else if (mko3 > mko3Max || mko3 < 1) {
             box->setText("Номер слова данных абонента должен быть не больше 32");
             box->show();
             return;
@@ -290,7 +291,7 @@ void AddForm::on_pushButton_clicked()
                 {
                 case 0:
                 {
-                    if(value>30 || value <1)
+                    if(value>mko1Max || value <1)
                     {
                         box->setText("Адрес абонента не должен быть больше 30 и не меньше 1");
                         box->show();
@@ -299,7 +300,7 @@ void AddForm::on_pushButton_clicked()
                 }
                 case 1:
                 {
-                    if(value>30 || value <1)
+                    if(value>mko2Max || value <1)
                     {
                         box->setText("Подадрес абонента не должен быть больше 30 и не меньше 1");
                         box->show();
@@ -308,7 +309,7 @@ void AddForm::on_pushButton_clicked()
                 }
                 case 2:
                 {
-                    if(value>32 || value <1)
+                    if(value>mko3Max || value <1)
                     {
                         box->setText("Номер слова данных не должен быть больше 32 и не меньше 1");
                         box->show();
@@ -479,7 +480,7 @@ void AddForm::on_pushButton_clicked()
             box->setText("Данные МКО имеют неверный формат");
             box->show();
             return;
-        } else if (mko1 > 30 || mko1 < 1) {
+        } else if (mko1 > mko1Max || mko1 < 1) {
             box->setText("Адрес абонента должен быть не больше 30");
             box->show();
             return;
@@ -489,7 +490,7 @@ void AddForm::on_pushButton_clicked()
             box->setText("Данные МКО имеют неверный формат");
             box->show();
             return;
-        } else if (mko2 > 30 || mko2 < 1) {
+        } else if (mko2 > mko2Max || mko2 < 1) {
             box->setText("Подадрес абонента должен быть не больше 30");
             box->show();
             return;
@@ -499,7 +500,7 @@ void AddForm::on_pushButton_clicked()
             box->setText("Данные МКО имеют неверный формат");
             box->show();
             return;
-        } else if (mko3 > 32 || mko3 < 1) {
+        } else if (mko3 > mko3Max || mko3 < 1) {
             box->setText("Номер слова данных абонента должен быть не больше 32");
             box->show();
             return;
@@ -600,6 +601,38 @@ void AddForm::on_pushButton_clicked()
     }
     //Метаданные
     if (currentType == SigTypeAdd[3]) {
+
+        //Валидация
+        if (ui->idTImeMeta->text() == "") {
+            box->setText("Поля должны быть заполнены");
+            box->show();
+            return;
+        } else if (idsToCheck->contains(ui->idTImeMeta->text())) {
+            box->setText("id должен быть уникальным");
+            box->show();
+            return;
+        }
+
+        for (int i = 0; i < ui->idPDCMMeta->columnCount(); i++) {
+            QTableWidgetItem* itemID = ui->idPDCMMeta->item(0, i);
+            if (!itemID || itemID->text().isEmpty()) {
+                box->setText("Поля не должны быть пустыми");
+                box->show();
+                return;
+            }
+        }
+        for (int a = 0; a < ui->readMeta->rowCount(); a++) {
+            for (int b = 0; b < ui->readMeta->columnCount(); b++) {
+               // bool convertable = true;
+                QTableWidgetItem* item = ui->readMeta->item(a, b);
+                if (!item || item->text().isEmpty()) {
+                    box->setText("Поля не должны быть пустыми");
+                    box->show();
+                    return;
+                }
+            }
+        }
+        //Валидация конец
         itemModel = new QStandardItem("Сигнал устройства с id " + ui->idTImeMeta->text());
         itemModel->setEditable(false);
         model->appendRow(itemModel);
@@ -608,6 +641,7 @@ void AddForm::on_pushButton_clicked()
         itemToAppend = new QStandardItem("id времени");
         itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
+        idsToCheck->append(ui->idTImeMeta->text());
 
         itemToAppend->appendRow(new QStandardItem(ui->idTImeMeta->text()));
         itemToAppend->setEditable(false);
@@ -692,7 +726,7 @@ void AddForm::on_pushButton_clicked()
                     {
                     case 0:
                     {
-                        if(value>30 || value <1)
+                        if(value>mko1Max || value <1)
                         {
                             box->setText("Адрес абонента не должен быть больше 30 и не меньше 1");
                             box->show();
@@ -701,7 +735,7 @@ void AddForm::on_pushButton_clicked()
                     }
                     case 1:
                     {
-                        if(value>30 || value <1)
+                        if(value>mko2Max || value <1)
                         {
                             box->setText("Подадрес абонента не должен быть больше 30 и не меньше 1");
                             box->show();
@@ -710,7 +744,7 @@ void AddForm::on_pushButton_clicked()
                     }
                     case 2:
                     {
-                        if(value>32 || value <1)
+                        if(value>mko3Max || value <1)
                         {
                             box->setText("Номер слова данных не должен быть больше 32 и не меньше 1");
                             box->show();
@@ -786,5 +820,6 @@ void AddForm::on_pushButton_clicked()
         itemToAppend->appendRow(new QStandardItem(SigTypeAdd[4]));
         itemToAppend->setEditable(false);
         this->close();
+
     }
 }
