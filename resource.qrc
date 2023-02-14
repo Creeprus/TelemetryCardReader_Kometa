@@ -5,5 +5,6 @@
         <file>Styles/SyNet.qss</file>
         <file>Styles/Cstartpage.qss</file>
         <file>Styles/Diffnes.qss</file>
+        <file>Icons/kometaicon.png</file>
     </qresource>
 </RCC>
