@@ -25,7 +25,7 @@ public:
    QStandardItemModel* model;
    QStandardItem* itemModel=new QStandardItem();
    QStandardItem* itemToAppend=new QStandardItem();
-   QStringList idsToCheck;
+   QStringList* idsToCheck;
 
 
 private slots:
@@ -61,8 +61,9 @@ private:
     Ui::AddForm *ui;
     QStringList typeList={"ЦЕЛОЕ","ФОК","ВЕЩЕСТВЕННОЕ","ВРЕМЯ","МЕТАДАННЫЕ"};
     QStringList byteList={"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
-
-
+    const static int mko1Max = 30;
+    const static int mko2Max = 30;
+    const static int mko3Max = 32;
 };
 
 #endif // ADDFORM_H

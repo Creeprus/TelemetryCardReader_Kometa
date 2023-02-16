@@ -65,7 +65,7 @@ void MainWindow::SaveJSON()
 
             auto item = model->item(i, 0);
             QJsonObject obj = json.getObject(item, json.getType(item));
-            qDebug() << obj;
+            //   qDebug() << obj;
             finalArray.append(QJsonValue(obj));
         }
 
@@ -79,7 +79,6 @@ void MainWindow::addTelemetryRule()
 {
 
     auto model = ui->treeView->model();
-    qDebug() << model->columnCount();
 }
 
 void MainWindow::popupForm()
@@ -116,6 +115,7 @@ void MainWindow::ReadTelemetry()
     QJsonArray json_aray = currentDoc.array();
 
     if (json_aray.isEmpty() == false) {
+        ids = new QStringList();
         for (int i = 0; i < json_aray.size(); i++) {
 
             obj = json_aray[i].toObject();
@@ -135,8 +135,10 @@ void MainWindow::ReadTelemetry()
                 auto key = obj.keys().at(j);
                 auto value = obj.value(key);
                 if (value.isString()) {
+                    itemToAdd->setEditable(false);
                     itemToAdd = new QStandardItem(key);
-                    itemToAdd->setEditable(true);
+                    if (key != "тип")
+                        itemToAdd->setEditable(true);
                     itemHeader->appendRow(itemToAdd);
                     itemToAdd->appendRow(new QStandardItem(value.toVariant().toString()));
                     itemToAdd->setEditable(false);
@@ -148,7 +150,7 @@ void MainWindow::ReadTelemetry()
                     itemToAdd->appendRow(new QStandardItem(value.toVariant().toString()));
                     itemToAdd->setEditable(false);
                     //ids->insert(ids->size(),value.toVariant().toInt());
-                    ids.append(value.toVariant().toString());
+                    ids->append(value.toVariant().toString());
 
                 } else if (value.isArray()) {
 
@@ -198,8 +200,20 @@ void MainWindow::ReadTelemetry()
 
 void MainWindow::itemDataValidation(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
 {
-    qDebug() << topLeft.data();
-    qDebug() << bottomRight.data();
+    QString validationError;
+    //auto modelValidation = topLeft.model();
+    QModelIndex currentIndex = topLeft;
+    while (currentIndex.parent().isValid()) {
+        currentIndex = currentIndex.parent();
+    }
+
+    QAbstractItemModel* abstractModel = const_cast<QAbstractItemModel*>(currentIndex.model());
+    const QStandardItemModel* model = dynamic_cast<QStandardItemModel*>(abstractModel);
+    auto item = model->itemFromIndex(currentIndex);
+
+    auto obj = toJsonObject(item);
+    qDebug() << obj;
+    validationError = validateObject(obj);
 }
 
 void MainWindow::on_telemetryReadButton_clicked()
@@ -210,6 +224,7 @@ void MainWindow::on_telemetryReadButton_clicked()
 void MainWindow::showAddForm()
 {
     addform->model = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
+
     addform->idsToCheck = ids;
     addform->exec();
 }
@@ -226,10 +241,42 @@ void MainWindow::deleteTelemetryRule()
     int idx = curIndex.row();
     model->removeRow(idx);
     // currentModel=model;
-    ids.removeAt(idx);
+    ids->removeAt(idx);
     addform->model = dynamic_cast<QStandardItemModel*>(model);
 }
-//Построчное выборочное удаление
+static QVector<QStandardItem*> childrenToVector(QStandardItem* item)
+{
+    QVector<QStandardItem*> children;
+    int numberOfChildren = item->rowCount();
+    for (int i = 0; i < numberOfChildren; i++) {
+        children.append(item->child(i));
+    }
+    return children;
+}
+
+QJsonObject MainWindow::toJsonObject(QStandardItem* item)
+{
+
+    JSONReaderClass jsonReader;
+    QJsonObject obj;
+    QVector<QStandardItem*> c = childrenToVector(item);
+    //    for (auto it = children.begin(); it != children.end(); ++it) {
+    //    }
+    if (
+        std::find_if(c.begin(), c.end(), [](QStandardItem* item) {
+            qDebug() << item->text();
+            return item->text() == QString("тип");
+        })
+        == c.end()) {
+
+        qDebug() << "Объект не валидный";
+        return obj;
+    }
+    qDebug() << "ОК";
+    obj = jsonReader.getObject(item, jsonReader.getType(item));
+    return obj;
+}
+//Построчное выборочное удаление, если вдруг понадобится
 //void MainWindow::deleteTelemetryRule()
 //{
 
@@ -241,7 +288,14 @@ void MainWindow::deleteTelemetryRule()
 //    ui->treeView->setModel(model);
 
 //}
-
+//Как вариант вернуть QStringList с валидационными ошибками
+QString validateObject(QJsonObject* obj)
+{
+    for (int j = 0; j < obj->size(); j++) {
+        auto key = obj->keys().at(j);
+        auto value = obj->value(key);
+    }
+}
 void MainWindow::on_MainWindow_destroyed(QObject* arg1)
 {
 }

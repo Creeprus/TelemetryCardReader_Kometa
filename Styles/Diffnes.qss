@@ -601,16 +601,25 @@ QTreeView
         background-color: #838383;
         border: #f3f6f4;
 	color: #fff;
-	font: 8pt;
+        font: 12pt;
 
 }
 
+QTreeView::item
+{
+size:30;
+height:20;
 
+}
+QTreeView:item:font
+{
+size:30;
+}
 QTreeView::item:selected
 {
 	color:#fff;
         background-color: #6aa84f;
-	border-radius: 0px;
+        border-radius: 5px;
 
 }
 
