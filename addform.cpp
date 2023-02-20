@@ -120,7 +120,7 @@ void AddForm::on_pushButton_4_clicked()
 
 void AddForm::on_pushButton_clicked()
 {
-
+    QStandardItem* header;
     int numBits = 0;
     QMessageBox* box = new QMessageBox();
     QString currentType = ui->comboBox->currentText();
@@ -192,48 +192,53 @@ void AddForm::on_pushButton_clicked()
         }
 
         //Валидация конец
-        itemModel = new QStandardItem("Телеметрия устройства: " + ui->controllerInt->toPlainText());
+        header = itemModel = new QStandardItem("Телеметрия устройства: " + ui->controllerInt->toPlainText());
         model->appendRow(itemModel);
+        itemModel->setEditable(false);
 
         //id
 
         itemToAppend = new QStandardItem("id");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
 
         itemToAppend->appendRow(new QStandardItem(ui->idInt->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //имя
         itemToAppend = new QStandardItem("имя");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->nameInt->toPlainText()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //устройство
 
         itemToAppend = new QStandardItem("устройство");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->controllerInt->toPlainText()));
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         // биты
         itemToAppend = new QStandardItem("биты");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->bytesCombobox->currentText()));
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         // тип
         itemToAppend = new QStandardItem("тип");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-        itemToAppend->appendRow(new QStandardItem(SigTypeAdd[0]));
+        itemToAppendType = new QStandardItem(SigTypeAdd[0]);
+        itemToAppendType->setEditable(false);
+        itemToAppend->appendRow(itemToAppendType);
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
 
         //мко
         itemToAppend = new QStandardItem("мко");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->MKOTableInt->columnCount(); i++) {
 
@@ -241,6 +246,7 @@ void AddForm::on_pushButton_clicked()
         }
 
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         idsToCheck->append(ui->idInt->text());
         this->close();
     }
@@ -324,27 +330,30 @@ void AddForm::on_pushButton_clicked()
         //id
 
         itemToAppend = new QStandardItem("id");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
 
         itemToAppend->appendRow(new QStandardItem(ui->idReal->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //имя
         itemToAppend = new QStandardItem("имя");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->nameReal->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //устройство
 
         itemToAppend = new QStandardItem("устройство");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->controllerReal->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //мко
         itemToAppend = new QStandardItem("мко");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->MKOTableReal->rowCount(); i++) {
 
@@ -355,15 +364,17 @@ void AddForm::on_pushButton_clicked()
                 currentItem->appendRow(new QStandardItem(ui->MKOTableReal->item(i, j)->text()));
             }
         }
-
+        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(false);
 
         // тип
         itemToAppend = new QStandardItem("тип");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-        itemToAppend->appendRow(new QStandardItem(SigTypeAdd[1]));
+        itemToAppendType = new QStandardItem(SigTypeAdd[1]);
+        itemToAppendType->setEditable(false);
+        itemToAppend->appendRow(itemToAppendType);
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
 
         idsToCheck->append(ui->idReal->text());
         this->close();
@@ -505,39 +516,41 @@ void AddForm::on_pushButton_clicked()
             //id
 
             itemToAppend = new QStandardItem("id");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
 
             itemToAppend->appendRow(new QStandardItem(ui->idFlag->text()));
             itemToAppend->setEditable(false);
             idsToCheck->append(ui->idFlag->text());
+            itemModel->appendRow(itemToAppend);
             //имя
             itemToAppend = new QStandardItem("имя");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             itemToAppend->appendRow(new QStandardItem(ui->nameFlag->text()));
             itemToAppend->setEditable(false);
+            itemModel->appendRow(itemToAppend);
             //устройство
 
             itemToAppend = new QStandardItem("устройство");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             itemToAppend->appendRow(new QStandardItem(ui->controllerFlag->toPlainText()));
             itemToAppend->setEditable(false);
-
+            itemModel->appendRow(itemToAppend);
             //мко
             itemToAppend = new QStandardItem("мко");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             for (int i = 0; i < ui->MKOTableFlag->columnCount(); i++) {
                 itemToAppend->appendRow(new QStandardItem(ui->MKOTableFlag->item(0, i)->text()));
             }
 
             itemToAppend->setEditable(false);
-
+            itemModel->appendRow(itemToAppend);
             // биты
             itemToAppend = new QStandardItem("биты");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             if (ui->bytesCombobox2_2->currentText() == ui->bytesCombobox2->currentText()) {
                 itemToAppend->appendRow(new QStandardItem(ui->bytesCombobox2->currentText()));
@@ -548,9 +561,10 @@ void AddForm::on_pushButton_clicked()
             }
 
             itemToAppend->setEditable(false);
+            itemModel->appendRow(itemToAppend);
             //значения
             itemToAppend = new QStandardItem("значения");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             for (int i = 0; i < ui->valuesTableFlag->rowCount(); i++) {
                 QStandardItem* currentItem = new QStandardItem(QString("Значение %1").arg(i));
@@ -563,20 +577,22 @@ void AddForm::on_pushButton_clicked()
             }
 
             itemToAppend->setEditable(false);
+            itemModel->appendRow(itemToAppend);
             // тип
             itemToAppend = new QStandardItem("тип");
-            itemModel->appendRow(itemToAppend);
             itemToAppend->setEditable(true);
-            itemToAppend->appendRow(new QStandardItem(SigTypeAdd[2]));
+            itemToAppendType = new QStandardItem(SigTypeAdd[2]);
+            itemToAppendType->setEditable(false);
+            itemToAppend->appendRow(itemToAppendType);
             itemToAppend->setEditable(false);
+            itemModel->appendRow(itemToAppend);
 
             //сокращение
             itemToAppend = new QStandardItem("сокращение");
-            itemModel->appendRow(itemToAppend);
             itemToAppend->setEditable(true);
             itemToAppend->appendRow(new QStandardItem(ui->abrevFlag->toPlainText()));
             itemToAppend->setEditable(false);
-
+            itemModel->appendRow(itemToAppend);
             this->close();
         }
     }
@@ -674,16 +690,16 @@ void AddForm::on_pushButton_clicked()
         //id времени
 
         itemToAppend = new QStandardItem("id времени");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         idsToCheck->append(ui->idTImeMeta->text());
 
         itemToAppend->appendRow(new QStandardItem(ui->idTImeMeta->text()));
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         //id ПДЦМ
         itemToAppend = new QStandardItem("id ПДЦМ");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->idPDCMMeta->columnCount(); i++) {
 
@@ -691,10 +707,10 @@ void AddForm::on_pushButton_clicked()
         }
 
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         //читать
         itemToAppend = new QStandardItem("читать");
-        itemModel->appendRow(itemToAppend);
+        ;
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->readMeta->rowCount(); i++) {
 
@@ -707,13 +723,15 @@ void AddForm::on_pushButton_clicked()
         }
 
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         // тип
         itemToAppend = new QStandardItem("тип");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-        itemToAppend->appendRow(new QStandardItem(SigTypeAdd[3]));
+        itemToAppendType = new QStandardItem(SigTypeAdd[3]);
+        itemToAppendType->setEditable(false);
+        itemToAppend->appendRow(itemToAppendType);
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         this->close();
     }
     // Время
@@ -794,29 +812,29 @@ void AddForm::on_pushButton_clicked()
         //id
 
         itemToAppend = new QStandardItem("id");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
         idsToCheck->append(ui->idTime->text());
-
         itemToAppend->appendRow(new QStandardItem(ui->idTime->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //имя
         itemToAppend = new QStandardItem("имя");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->nameTime->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //устройство
 
         itemToAppend = new QStandardItem("устройство");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->controllerTime->toPlainText()));
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         //мко
         itemToAppend = new QStandardItem("мко");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->MKOTableTime->rowCount(); i++) {
 
@@ -827,15 +845,17 @@ void AddForm::on_pushButton_clicked()
                 currentItem->appendRow(new QStandardItem(ui->MKOTableTime->item(i, j)->text()));
             }
         }
-
+        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(false);
 
         // тип
         itemToAppend = new QStandardItem("тип");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-        itemToAppend->appendRow(new QStandardItem(SigTypeAdd[4]));
+        itemToAppendType = new QStandardItem(SigTypeAdd[4]);
+        itemToAppendType->setEditable(false);
+        itemToAppend->appendRow(itemToAppendType);
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         this->close();
     }
 }

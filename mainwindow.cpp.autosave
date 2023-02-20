@@ -411,6 +411,7 @@ QStringList MainWindow::validateObject(QJsonObject obj)
             }
         }
         if (key == "биты" || key == "значения") {
+            
         }
         if (key == "id ПДЦМ") {
             QVector<int> vectorInt;

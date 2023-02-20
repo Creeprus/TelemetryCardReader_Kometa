@@ -19,6 +19,7 @@ public:
     QJsonDocument currentDoc;
     QJsonArray currentDocAr;
     QStandardItem* itemToAdd;
+    QStandardItem* itemToAddType;
     QStandardItem* itemHeader;
     QMenu* contextMenu = new QMenu(this);
     QAction* addTelemetryRuleAction;
@@ -26,6 +27,8 @@ public:
 
     QStandardItemModel* returnModel;
     QStringList* ids;
+
+    QStringList validateObject(QJsonObject obj);
 
 private:
     AddForm* addform = new AddForm();
@@ -52,6 +55,11 @@ private slots:
     QJsonObject toJsonObject(QStandardItem* item);
 
     void on_MainWindow_destroyed(QObject* arg1);
+
+private:
+    const static int mko1Max = 30;
+    const static int mko2Max = 30;
+    const static int mko3Max = 32;
 };
 
 #endif // MAINWINDOW_H
