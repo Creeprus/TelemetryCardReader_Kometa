@@ -120,7 +120,7 @@ void AddForm::on_pushButton_4_clicked()
 
 void AddForm::on_pushButton_clicked()
 {
-
+    QStandardItem* header;
     int numBits = 0;
     QMessageBox* box = new QMessageBox();
     QString currentType = ui->comboBox->currentText();
@@ -130,8 +130,8 @@ void AddForm::on_pushButton_clicked()
     if (currentType == SigTypeAdd[0]) {
         //Валидация
         if (ui->nameInt->toPlainText() == "" || ui->idInt->text() == "" || ui->controllerInt->toPlainText() == ""
-            || ui->MKOTableInt->item(0,0)->text() ==""
-            || ui->MKOTableInt->item(0, 1)->text() == "" || ui->MKOTableInt->item(0, 2)->text() == "" ) {
+            || ui->MKOTableInt->item(0, 0)->text() == ""
+            || ui->MKOTableInt->item(0, 1)->text() == "" || ui->MKOTableInt->item(0, 2)->text() == "") {
             box->setText("Поля не должны быть пустыми");
             box->show();
             return;
@@ -140,7 +140,6 @@ void AddForm::on_pushButton_clicked()
             box->show();
             return;
         }
-
 
         QTableWidgetItem* itemMKO1 = ui->MKOTableInt->item(0, 0);
         if (!itemMKO1 || itemMKO1->text().isEmpty()) {
@@ -160,7 +159,7 @@ void AddForm::on_pushButton_clicked()
             box->show();
             return;
         }
-         bool conversionSuccess = false;
+        bool conversionSuccess = false;
         int mko1 = ui->MKOTableInt->item(0, 0)->text().toInt(&conversionSuccess, 10);
         if (!conversionSuccess) {
             box->setText("Данные МКО имеют неверный формат");
@@ -193,48 +192,53 @@ void AddForm::on_pushButton_clicked()
         }
 
         //Валидация конец
-        itemModel = new QStandardItem("Телеметрия устройства: " + ui->controllerInt->toPlainText());
+        header = itemModel = new QStandardItem("Телеметрия устройства: " + ui->controllerInt->toPlainText());
         model->appendRow(itemModel);
+        itemModel->setEditable(false);
 
         //id
 
         itemToAppend = new QStandardItem("id");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
 
         itemToAppend->appendRow(new QStandardItem(ui->idInt->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //имя
         itemToAppend = new QStandardItem("имя");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->nameInt->toPlainText()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //устройство
 
         itemToAppend = new QStandardItem("устройство");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->controllerInt->toPlainText()));
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         // биты
         itemToAppend = new QStandardItem("биты");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->bytesCombobox->currentText()));
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         // тип
         itemToAppend = new QStandardItem("тип");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-        itemToAppend->appendRow(new QStandardItem(SigTypeAdd[0]));
+        itemToAppendType = new QStandardItem(SigTypeAdd[0]);
+        itemToAppendType->setEditable(false);
+        itemToAppend->appendRow(itemToAppendType);
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
 
         //мко
         itemToAppend = new QStandardItem("мко");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->MKOTableInt->columnCount(); i++) {
 
@@ -242,14 +246,14 @@ void AddForm::on_pushButton_clicked()
         }
 
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         idsToCheck->append(ui->idInt->text());
         this->close();
     }
     // Вещественное
     if (currentType == SigTypeAdd[1]) {
-    //Валидация
-        if (ui->nameReal->text() == "" || ui->idReal->text() == "" || ui->controllerReal->text() == "" || ui->MKOTableReal->rowCount() == 0
-            ) {
+        //Валидация
+        if (ui->nameReal->text() == "" || ui->idReal->text() == "" || ui->controllerReal->text() == "" || ui->MKOTableReal->rowCount() == 0) {
             box->setText("Поля не должны быть пустыми");
             box->show();
             return;
@@ -258,7 +262,6 @@ void AddForm::on_pushButton_clicked()
             box->show();
             return;
         }
-
 
         QVector<int> vector;
 
@@ -269,68 +272,52 @@ void AddForm::on_pushButton_clicked()
         }
 
         for (int a = 0; a < ui->MKOTableReal->rowCount(); a++) {
-            for(int b=0;b<ui->MKOTableReal->columnCount();b++)
-            {
-                bool convertable=true;
-            QTableWidgetItem* item = ui->MKOTableReal->item(a, b);
-            if (!item || item->text().isEmpty()) {
-                box->setText("Поля не должны быть пустыми");
-                box->show();
-                return;
-            }
-            int value=item->text().toInt(&convertable,10);
-            if(convertable==false)
-            {
-                box->setText("Поля МКО имеют неккоректные данные для ввода");
-                box->show();
-                return;
-            }
-            else
-            {
-                switch(b)
-                {
-                case 0:
-                {
-                    if(value>mko1Max || value <1)
-                    {
-                        box->setText("Адрес абонента не должен быть больше 30 и не меньше 1");
-                        box->show();
-                        return;
+            for (int b = 0; b < ui->MKOTableReal->columnCount(); b++) {
+                bool convertable = true;
+                QTableWidgetItem* item = ui->MKOTableReal->item(a, b);
+                if (!item || item->text().isEmpty()) {
+                    box->setText("Поля не должны быть пустыми");
+                    box->show();
+                    return;
+                }
+                int value = item->text().toInt(&convertable, 10);
+                if (convertable == false) {
+                    box->setText("Поля МКО имеют неккоректные данные для ввода");
+                    box->show();
+                    return;
+                } else {
+                    switch (b) {
+                    case 0: {
+                        if (value > mko1Max || value < 1) {
+                            box->setText("Адрес абонента не должен быть больше 30 и не меньше 1");
+                            box->show();
+                            return;
+                        }
+                    }
+                    case 1: {
+                        if (value > mko2Max || value < 1) {
+                            box->setText("Подадрес абонента не должен быть больше 30 и не меньше 1");
+                            box->show();
+                            return;
+                        }
+                    }
+                    case 2: {
+                        if (value > mko3Max || value < 1) {
+                            box->setText("Номер слова данных не должен быть больше 32 и не меньше 1");
+                            box->show();
+                            return;
+                        }
+                    }
                     }
                 }
-                case 1:
-                {
-                    if(value>mko2Max || value <1)
-                    {
-                        box->setText("Подадрес абонента не должен быть больше 30 и не меньше 1");
-                        box->show();
-                        return;
-                    }
-                }
-                case 2:
-                {
-                    if(value>mko3Max || value <1)
-                    {
-                        box->setText("Номер слова данных не должен быть больше 32 и не меньше 1");
-                        box->show();
-                        return;
-                    }
-                }
-
-                }
-
-            }
             }
 
-            if(vector.contains(ui->MKOTableReal->item(a, 0)->text().toInt()))
-            {
+            if (vector.contains(ui->MKOTableReal->item(a, 0)->text().toInt())) {
                 box->setText("Нельзя использовать дубликаты адресов");
                 box->show();
                 return;
-            }
-            else
-            {
-                int val=ui->MKOTableReal->item(a, 0)->text().toInt();
+            } else {
+                int val = ui->MKOTableReal->item(a, 0)->text().toInt();
                 vector.append(val);
             }
         }
@@ -343,27 +330,30 @@ void AddForm::on_pushButton_clicked()
         //id
 
         itemToAppend = new QStandardItem("id");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
 
         itemToAppend->appendRow(new QStandardItem(ui->idReal->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //имя
         itemToAppend = new QStandardItem("имя");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->nameReal->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //устройство
 
         itemToAppend = new QStandardItem("устройство");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->controllerReal->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //мко
         itemToAppend = new QStandardItem("мко");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->MKOTableReal->rowCount(); i++) {
 
@@ -374,17 +364,19 @@ void AddForm::on_pushButton_clicked()
                 currentItem->appendRow(new QStandardItem(ui->MKOTableReal->item(i, j)->text()));
             }
         }
-
+        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(false);
 
         // тип
         itemToAppend = new QStandardItem("тип");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-        itemToAppend->appendRow(new QStandardItem(SigTypeAdd[1]));
+        itemToAppendType = new QStandardItem(SigTypeAdd[1]);
+        itemToAppendType->setEditable(false);
+        itemToAppend->appendRow(itemToAppendType);
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
 
-         idsToCheck->append(ui->idReal->text());
+        idsToCheck->append(ui->idReal->text());
         this->close();
     }
     // ФОК
@@ -524,52 +516,55 @@ void AddForm::on_pushButton_clicked()
             //id
 
             itemToAppend = new QStandardItem("id");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
 
             itemToAppend->appendRow(new QStandardItem(ui->idFlag->text()));
             itemToAppend->setEditable(false);
-             idsToCheck->append(ui->idFlag->text());
+            idsToCheck->append(ui->idFlag->text());
+            itemModel->appendRow(itemToAppend);
             //имя
             itemToAppend = new QStandardItem("имя");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             itemToAppend->appendRow(new QStandardItem(ui->nameFlag->text()));
             itemToAppend->setEditable(false);
+            itemModel->appendRow(itemToAppend);
             //устройство
 
             itemToAppend = new QStandardItem("устройство");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             itemToAppend->appendRow(new QStandardItem(ui->controllerFlag->toPlainText()));
             itemToAppend->setEditable(false);
-
+            itemModel->appendRow(itemToAppend);
             //мко
             itemToAppend = new QStandardItem("мко");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             for (int i = 0; i < ui->MKOTableFlag->columnCount(); i++) {
                 itemToAppend->appendRow(new QStandardItem(ui->MKOTableFlag->item(0, i)->text()));
             }
 
             itemToAppend->setEditable(false);
-
+            itemModel->appendRow(itemToAppend);
             // биты
             itemToAppend = new QStandardItem("биты");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             if (ui->bytesCombobox2_2->currentText() == ui->bytesCombobox2->currentText()) {
                 itemToAppend->appendRow(new QStandardItem(ui->bytesCombobox2->currentText()));
             }
 
-             else {
+            else {
                 itemToAppend->appendRow(new QStandardItem(ui->bytesCombobox2->currentText() + "-" + ui->bytesCombobox2_2->currentText()));
             }
 
             itemToAppend->setEditable(false);
+            itemModel->appendRow(itemToAppend);
             //значения
             itemToAppend = new QStandardItem("значения");
-            itemModel->appendRow(itemToAppend);
+
             itemToAppend->setEditable(true);
             for (int i = 0; i < ui->valuesTableFlag->rowCount(); i++) {
                 QStandardItem* currentItem = new QStandardItem(QString("Значение %1").arg(i));
@@ -582,28 +577,31 @@ void AddForm::on_pushButton_clicked()
             }
 
             itemToAppend->setEditable(false);
+            itemModel->appendRow(itemToAppend);
             // тип
             itemToAppend = new QStandardItem("тип");
-            itemModel->appendRow(itemToAppend);
             itemToAppend->setEditable(true);
-            itemToAppend->appendRow(new QStandardItem(SigTypeAdd[2]));
+            itemToAppendType = new QStandardItem(SigTypeAdd[2]);
+            itemToAppendType->setEditable(false);
+            itemToAppend->appendRow(itemToAppendType);
             itemToAppend->setEditable(false);
+            itemModel->appendRow(itemToAppend);
 
             //сокращение
             itemToAppend = new QStandardItem("сокращение");
-            itemModel->appendRow(itemToAppend);
             itemToAppend->setEditable(true);
             itemToAppend->appendRow(new QStandardItem(ui->abrevFlag->toPlainText()));
             itemToAppend->setEditable(false);
-
+            itemModel->appendRow(itemToAppend);
             this->close();
         }
     }
     //Метаданные
     if (currentType == SigTypeAdd[3]) {
-
+        QVector<int> vector;
+        QVector<int> vectorInt;
         //Валидация
-        if (ui->idTImeMeta->text() == "") {
+        if (ui->idTImeMeta->text() == "" || ui->readMeta->rowCount() == 0) {
             box->setText("Поля должны быть заполнены");
             box->show();
             return;
@@ -612,7 +610,7 @@ void AddForm::on_pushButton_clicked()
             box->show();
             return;
         }
-
+        bool conversionSuccess = false;
         for (int i = 0; i < ui->idPDCMMeta->columnCount(); i++) {
             QTableWidgetItem* itemID = ui->idPDCMMeta->item(0, i);
             if (!itemID || itemID->text().isEmpty()) {
@@ -620,18 +618,71 @@ void AddForm::on_pushButton_clicked()
                 box->show();
                 return;
             }
+            auto num = ui->idPDCMMeta->item(0, i)->text().toInt(&conversionSuccess, 10);
+            if (!conversionSuccess || num < 0) {
+                box->setText("Поля имеют неправильный формат ввода");
+                box->show();
+                return;
+            }
+            if (vectorInt.contains(num)) {
+                box->setText("id ПДЦМ не должен повторятся");
+                box->show();
+                return;
+            } else {
+                vectorInt.append(num);
+            }
         }
+
         for (int a = 0; a < ui->readMeta->rowCount(); a++) {
             for (int b = 0; b < ui->readMeta->columnCount(); b++) {
-               // bool convertable = true;
+                bool convertable = true;
                 QTableWidgetItem* item = ui->readMeta->item(a, b);
                 if (!item || item->text().isEmpty()) {
                     box->setText("Поля не должны быть пустыми");
                     box->show();
                     return;
                 }
+                int value = item->text().toInt(&convertable, 10);
+                if (convertable == false) {
+                    box->setText("Поля МКО имеют неккоректные данные для ввода");
+                    box->show();
+                    return;
+                } else {
+                    switch (b) {
+                    case 0: {
+                        if (value > mko1Max || value < 1) {
+                            box->setText("Адрес абонента не должен быть больше 30 и не меньше 1");
+                            box->show();
+                            return;
+                        }
+                    }
+                    case 1: {
+                        if (value > mko2Max || value < 1) {
+                            box->setText("Подадрес абонента не должен быть больше 30 и не меньше 1");
+                            box->show();
+                            return;
+                        }
+                    }
+                    case 2: {
+                        if (value > mko3Max || value < 1) {
+                            box->setText("Номер слова данных не должен быть больше 32 и не меньше 1");
+                            box->show();
+                            return;
+                        }
+                    }
+                    }
+                }
+            }
+            if (vector.contains(ui->readMeta->item(a, 0)->text().toInt())) {
+                box->setText("Нельзя использовать дубликаты адресов");
+                box->show();
+                return;
+            } else {
+                int val = ui->readMeta->item(a, 0)->text().toInt();
+                vector.append(val);
             }
         }
+
         //Валидация конец
         itemModel = new QStandardItem("Сигнал устройства с id " + ui->idTImeMeta->text());
         itemModel->setEditable(false);
@@ -639,16 +690,16 @@ void AddForm::on_pushButton_clicked()
         //id времени
 
         itemToAppend = new QStandardItem("id времени");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         idsToCheck->append(ui->idTImeMeta->text());
 
         itemToAppend->appendRow(new QStandardItem(ui->idTImeMeta->text()));
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         //id ПДЦМ
         itemToAppend = new QStandardItem("id ПДЦМ");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->idPDCMMeta->columnCount(); i++) {
 
@@ -656,10 +707,10 @@ void AddForm::on_pushButton_clicked()
         }
 
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         //читать
         itemToAppend = new QStandardItem("читать");
-        itemModel->appendRow(itemToAppend);
+        ;
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->readMeta->rowCount(); i++) {
 
@@ -672,19 +723,20 @@ void AddForm::on_pushButton_clicked()
         }
 
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         // тип
         itemToAppend = new QStandardItem("тип");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-        itemToAppend->appendRow(new QStandardItem(SigTypeAdd[3]));
+        itemToAppendType = new QStandardItem(SigTypeAdd[3]);
+        itemToAppendType->setEditable(false);
+        itemToAppend->appendRow(itemToAppendType);
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         this->close();
     }
     // Время
     if (currentType == SigTypeAdd[4]) {
-        if (ui->nameTime->text() == "" || ui->idTime->text() == "" || ui->controllerTime->toPlainText() == "" || ui->MKOTableTime->rowCount() == 0
-            ) {
+        if (ui->nameTime->text() == "" || ui->idTime->text() == "" || ui->controllerTime->toPlainText() == "" || ui->MKOTableTime->rowCount() == 0) {
             box->setText("Поля не должны быть пустыми");
             box->show();
             return;
@@ -693,7 +745,6 @@ void AddForm::on_pushButton_clicked()
             box->show();
             return;
         }
-
 
         QVector<int> vector;
 
@@ -704,68 +755,52 @@ void AddForm::on_pushButton_clicked()
         }
 
         for (int a = 0; a < ui->MKOTableTime->rowCount(); a++) {
-            for(int b=0;b<ui->MKOTableTime->columnCount();b++)
-            {
-                bool convertable=true;
+            for (int b = 0; b < ui->MKOTableTime->columnCount(); b++) {
+                bool convertable = true;
                 QTableWidgetItem* item = ui->MKOTableTime->item(a, b);
                 if (!item || item->text().isEmpty()) {
                     box->setText("Поля не должны быть пустыми");
                     box->show();
                     return;
                 }
-                int value=item->text().toInt(&convertable,10);
-                if(convertable==false)
-                {
+                int value = item->text().toInt(&convertable, 10);
+                if (convertable == false) {
                     box->setText("Поля МКО имеют неккоректные данные для ввода");
                     box->show();
                     return;
-                }
-                else
-                {
-                    switch(b)
-                    {
-                    case 0:
-                    {
-                        if(value>mko1Max || value <1)
-                        {
+                } else {
+                    switch (b) {
+                    case 0: {
+                        if (value > mko1Max || value < 1) {
                             box->setText("Адрес абонента не должен быть больше 30 и не меньше 1");
                             box->show();
                             return;
                         }
                     }
-                    case 1:
-                    {
-                        if(value>mko2Max || value <1)
-                        {
+                    case 1: {
+                        if (value > mko2Max || value < 1) {
                             box->setText("Подадрес абонента не должен быть больше 30 и не меньше 1");
                             box->show();
                             return;
                         }
                     }
-                    case 2:
-                    {
-                        if(value>mko3Max || value <1)
-                        {
+                    case 2: {
+                        if (value > mko3Max || value < 1) {
                             box->setText("Номер слова данных не должен быть больше 32 и не меньше 1");
                             box->show();
                             return;
                         }
                     }
-
                     }
-
                 }
             }
 
-            if(vector.contains(ui->MKOTableTime->item(a, 0)->text().toInt()))
-            {
+            if (vector.contains(ui->MKOTableTime->item(a, 0)->text().toInt())) {
                 box->setText("Нельзя использовать дубликаты адресов");
                 box->show();
                 return;
-            }
-            else
-            {
-                int val=ui->MKOTableTime->item(a, 0)->text().toInt();
+            } else {
+                int val = ui->MKOTableTime->item(a, 0)->text().toInt();
                 vector.append(val);
             }
         }
@@ -777,29 +812,29 @@ void AddForm::on_pushButton_clicked()
         //id
 
         itemToAppend = new QStandardItem("id");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-         idsToCheck->append(ui->idTime->text());
-
+        idsToCheck->append(ui->idTime->text());
         itemToAppend->appendRow(new QStandardItem(ui->idTime->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //имя
         itemToAppend = new QStandardItem("имя");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->nameTime->text()));
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         //устройство
 
         itemToAppend = new QStandardItem("устройство");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         itemToAppend->appendRow(new QStandardItem(ui->controllerTime->toPlainText()));
         itemToAppend->setEditable(false);
-
+        itemModel->appendRow(itemToAppend);
         //мко
         itemToAppend = new QStandardItem("мко");
-        itemModel->appendRow(itemToAppend);
+
         itemToAppend->setEditable(true);
         for (int i = 0; i < ui->MKOTableTime->rowCount(); i++) {
 
@@ -810,16 +845,17 @@ void AddForm::on_pushButton_clicked()
                 currentItem->appendRow(new QStandardItem(ui->MKOTableTime->item(i, j)->text()));
             }
         }
-
+        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(false);
 
         // тип
         itemToAppend = new QStandardItem("тип");
-        itemModel->appendRow(itemToAppend);
         itemToAppend->setEditable(true);
-        itemToAppend->appendRow(new QStandardItem(SigTypeAdd[4]));
+        itemToAppendType = new QStandardItem(SigTypeAdd[4]);
+        itemToAppendType->setEditable(false);
+        itemToAppend->appendRow(itemToAppendType);
         itemToAppend->setEditable(false);
+        itemModel->appendRow(itemToAppend);
         this->close();
-
     }
 }

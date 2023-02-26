@@ -98,11 +98,11 @@
         <attribute name="horizontalHeaderCascadingSectionResizes">
          <bool>false</bool>
         </attribute>
-        <attribute name="horizontalHeaderMinimumSectionSize">
-         <number>60</number>
-        </attribute>
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>120</number>
+        </attribute>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>60</number>
         </attribute>
         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
          <bool>false</bool>
@@ -1026,7 +1026,10 @@
       <item row="6" column="0">
        <widget class="QTableWidget" name="idPDCMMeta">
         <attribute name="horizontalHeaderDefaultSectionSize">
-         <number>140</number>
+         <number>115</number>
+        </attribute>
+        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+         <bool>false</bool>
         </attribute>
         <attribute name="horizontalHeaderStretchLastSection">
          <bool>true</bool>
@@ -1038,27 +1041,32 @@
         </row>
         <column>
          <property name="text">
-          <string>1</string>
+          <string>X</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>2</string>
+          <string>Y</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>3</string>
+          <string>Z</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>4</string>
+          <string>Vx</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>5</string>
+          <string>Vy</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Vz</string>
          </property>
         </column>
        </widget>
@@ -1109,17 +1117,17 @@
         </attribute>
         <column>
          <property name="text">
-          <string>1</string>
+          <string>Адрес абонента</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>2</string>
+          <string>Подадрес абонента</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>3</string>
+          <string>Число слов данных</string>
          </property>
         </column>
        </widget>
