@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     connect(ui->treeView, &QTreeView::customContextMenuRequested, this,
         &MainWindow::contextMenuExpand);
+
+    ui->searchBox->addItems(searchList);
 }
 
 MainWindow::~MainWindow()
@@ -44,6 +46,7 @@ void MainWindow::contextMenuExpand(const QPoint& point)
 
 void MainWindow::SaveJSON()
 {
+
     QString saveFileName = QFileDialog::getSaveFileName(
         this,
         "Сохранить файл JSON",
@@ -62,9 +65,14 @@ void MainWindow::SaveJSON()
         model = dynamic_cast<QStandardItemModel*>(abstract_model);
 
         for (int i = 0; i < model->rowCount(); i++) {
-
             auto item = model->item(i, 0);
             QJsonObject obj = json.getObject(item, json.getType(item));
+            QStringList validationError = validateObject(obj);
+            if (validationError.count() > 1) {
+                QMessageBox* box;
+                box->about(this, "Ошибки валидации", "Нельзя сохранить телеметрическую карту, пока есть ошибки валидации");
+                return;
+            }
             //   qDebug() << obj;
             finalArray.append(QJsonValue(obj));
         }
@@ -160,7 +168,7 @@ void MainWindow::ReadTelemetry()
                     itemToAdd->appendRow(new QStandardItem(value.toVariant().toString()));
                     itemToAdd->setEditable(false);
                     //ids->insert(ids->size(),value.toVariant().toInt());
-                    ids->append(value.toVariant().toString());
+                    // ids->append(value.toVariant().toString());
 
                 } else if (value.isArray()) {
 
@@ -203,7 +211,7 @@ void MainWindow::ReadTelemetry()
                 }
             }
         }
-
+        setNewIdList();
         ui->treeView->setModel(model);
         currentModel = model;
     }
@@ -227,12 +235,13 @@ void MainWindow::itemDataValidation(const QModelIndex& topLeft, const QModelInde
     validationError = validateObject(obj);
     if (validationError.count() > 1) {
         QString validationString;
-        for (QString val : validationError) {
-            validationString.append(val + " ");
-        }
+        validationString = validationError.join(" \n ");
         QMessageBox* box = new QMessageBox();
-        box->setText(validationString);
-        box->show();
+        box->setTextFormat(Qt::RichText);
+        box->about(this, "Ошибка валидации", validationString);
+        //  box->setText(validationString);
+
+        //        box->show();
     }
 }
 
@@ -315,14 +324,21 @@ QStringList MainWindow::validateObject(QJsonObject obj)
     QStringList validationError;
 
     bool isInt = true;
+    auto currentController = obj.value("устройство");
+
+    if (currentController != QJsonValue::Undefined) {
+        validationError.append("Ошибки валидации на устройстве: " + currentController.toString());
+    } else {
+        validationError.append("Ошибки валидации на устройстве с id: " + obj.value("id времени").toVariant().toString());
+    }
     for (int j = 0; j < obj.size(); j++) {
         auto key = obj.keys().at(j);
         auto value = obj.value(key);
+
         if (key == "устройство") {
             if (value.toString() == "") {
                 validationError.append("Устройство не должно быть пустым");
             } else {
-                validationError.append("Ошибки валидации на устройстве: " + value.toString());
             }
         }
         if (key == "имя") {
@@ -334,20 +350,31 @@ QStringList MainWindow::validateObject(QJsonObject obj)
                 validationError.append("Сокращение устройства не должно быть пустым");
         }
         if (key == "id") {
-            double num = value.toVariant().toString().toDouble(&isInt);
-            if (value.toVariant().toString() == "")
-                validationError.append("id устройства не должно быть пустым");
-            if (isInt == false)
-                validationError.append("id может быть только числом");
-        }
-        if (key == "id времени") {
-            double num = value.toVariant().toString().toDouble(&isInt);
-            if (value.toVariant().toString() == "")
-                validationError.append("id устройства не должно быть пустым");
+            int num = value.toVariant().toString().toInt(&isInt);
+            if (value.toVariant().toInt() == 0)
+                validationError.append("id устройства не должно быть пустым или нулём");
             if (isInt == false)
                 validationError.append("id может быть только числом");
 
-            validationError.append("Ошибки валидации на устройстве с id: " + value.toVariant().toString());
+            QString idString = QString::number(num);
+            if (ids->contains(idString) == true) {
+                validationError.append("id должны быть уникальные");
+            }
+            setNewIdList();
+        }
+        if (key == "id времени") {
+            int num = value.toVariant().toString().toInt(&isInt);
+            if (value.toVariant().toInt() == 0)
+                validationError.append("id устройства не должно быть пустым или нулём");
+            if (isInt == false)
+                validationError.append("id может быть только числом");
+
+            QString idString = QString::number(num);
+            if (ids->contains(idString) == true) {
+                validationError.append("id должны быть уникальные");
+            }
+            setNewIdList();
+            //      validationError.append("Ошибки валидации на устройстве с id: " + value.toVariant().toString());
         }
         if (key == "мко") {
             if (value[0].isArray()) {
@@ -410,7 +437,101 @@ QStringList MainWindow::validateObject(QJsonObject obj)
                 }
             }
         }
-        if (key == "биты" || key == "значения") {
+        if (key == "биты") {
+
+            auto valueByte = obj.value("биты");
+            auto valueValues = obj.value("значения");
+            int byte1;
+            int byte2;
+            bool convertable = true;
+            bool convertableByte1 = false;
+            bool convertableByte2 = false;
+            int byte = valueByte.toVariant().toString().toInt(&convertable, 10);
+            if (valueByte == "") {
+                validationError.append("Биты не должны быть пустыми или не числовым диапазоном");
+                break;
+            }
+            if (convertable == false) {
+
+                if (valueByte.toVariant().toString().contains("-")) {
+                    QStringList valueByteList = valueByte.toString().split(QLatin1Char('-'));
+                    if (valueByteList.count() != 2) {
+                        validationError.append("Биты обладают неправильным числовым диапазоном");
+                        break;
+                    } else {
+                        byte1 = valueByteList[0].toInt(&convertableByte1, 10);
+                        if (convertableByte1 == false) {
+                            validationError.append("Биты должны быть целым числом");
+                            break;
+                        }
+                        byte2 = valueByteList[1].toInt(&convertableByte2, 10);
+                        if (convertableByte2 == false) {
+                            validationError.append("Биты должны быть целым числом");
+                            break;
+                        }
+                        if (byte1 < 0 || byte1 > 15 || byte2 < 0 || byte2 > 15) {
+                            validationError.append("Биты должны быть не менее 0 и не более 15");
+                            break;
+                        }
+                    }
+
+                } else {
+                    validationError.append("Биты обладают неправильным разделителем. Должен быть -");
+                    break;
+                }
+
+            } else {
+                if (byte < 0 || byte > 15) {
+                    validationError.append("Биты должны быть не менее 0 и не более 15");
+                    break;
+                }
+            }
+            //Обработка ключа "значения"
+
+            if (valueValues != QJsonValue::Undefined) {
+                QVector<int> vectorInt;
+                for (int i = 0; i < valueValues.toArray().count(); i++) {
+                    valueValues[i][0].toVariant().toInt(&convertable);
+                    if (convertable == false) {
+                        validationError.append("Первая ячейка значений должна быть ячейка о значением бита");
+                        break;
+                    }
+                    if (valueValues[i][0] == "") {
+                        validationError.append("Биты значений не должны быть пустыми");
+                        break;
+                    }
+                    if (valueValues[i][0].toVariant().toInt() < 0 || valueValues[i][0].toVariant().toInt() > valueValues.toArray().count()) {
+                        validationError.append("Биты не соответствуют значениям. Значения битов имеют неправильную позицию по битам");
+                        break;
+                    }
+                    if (valueValues[i][0].toVariant().toInt() < 0 || valueValues[i][0].toVariant().toInt() > valueValues.toArray().count()) {
+                        validationError.append("Биты не соответствуют значениям. Значения битов имеют неправильную позицию по битам");
+                        break;
+                    }
+                    if (vectorInt.contains(valueValues[i][0].toVariant().toInt())) {
+                        validationError.append("Значения битов должны быть уникальными");
+                        break;
+                    } else {
+                        vectorInt.append(valueValues[i][0].toVariant().toInt());
+                    }
+                }
+                if (convertableByte2 == false || convertableByte1 == false) {
+                    if (valueValues.toArray().count() > 2) {
+                        validationError.append("Биты не соответствуют значениям");
+                        break;
+                    }
+                } else {
+                    if (byte2 > byte1)
+                        std::swap(byte1, byte2);
+
+                    int numBits = byte1 - byte2 + 1;
+                    int maxPossibleValue = (1 << numBits);
+                    if (valueValues.toArray().count() > maxPossibleValue) {
+                        validationError.append("Количество битов не соответствуют значениям");
+                        break;
+                    }
+                }
+            }
         }
         if (key == "id ПДЦМ") {
             QVector<int> vectorInt;
@@ -478,4 +599,93 @@ QStringList MainWindow::validateObject(QJsonObject obj)
 
 void MainWindow::on_MainWindow_destroyed(QObject* arg1)
 {
+}
+
+void MainWindow::on_searchLine_returnPressed()
+{
+    JSONReaderClass json;
+    QString currentParameter = ui->searchBox->currentText();
+    QString currentValue = ui->searchLine->text();
+    if (currentValue == "") {
+        ui->treeView->collapseAll();
+        return;
+    }
+    QStandardItemModel* model = new QStandardItemModel(nullptr);
+    auto abstract_model = ui->treeView->model();
+    model = dynamic_cast<QStandardItemModel*>(abstract_model);
+    int childrenCount = model->rowCount();
+    ui->treeView->collapseAll();
+    if (currentParameter == "id") {
+        for (int i = 0; i < childrenCount; i++) {
+            QStandardItem* item = model->item(i);
+            QJsonObject obj = json.getObject(item, json.getType(item));
+            auto value = obj.value("id");
+            if (value.isUndefined()) {
+                value = obj.value("id времени");
+            }
+            if (currentValue == value.toVariant().toString()) {
+                ui->treeView->expand(item->index());
+            }
+        }
+    }
+    if (currentParameter == "Устройству") {
+        for (int i = 0; i < childrenCount; i++) {
+            QStandardItem* item = model->item(i);
+            QJsonObject obj = json.getObject(item, json.getType(item));
+            auto value = obj.value("устройство");
+
+            if (value.toVariant().toString().contains(currentValue)) {
+                ui->treeView->expand(item->index());
+            }
+        }
+    }
+    if (currentParameter == "Имени") {
+        for (int i = 0; i < childrenCount; i++) {
+            QStandardItem* item = model->item(i);
+            QJsonObject obj = json.getObject(item, json.getType(item));
+            auto value = obj.value("имя");
+
+            if (value.toVariant().toString().contains(currentValue)) {
+                ui->treeView->expand(item->index());
+            }
+        }
+    }
+    if (currentParameter == "Сокращению") {
+        for (int i = 0; i < childrenCount; i++) {
+            QStandardItem* item = model->item(i);
+            QJsonObject obj = json.getObject(item, json.getType(item));
+            auto value = obj.value("сокращение");
+
+            if (value.toVariant().toString().contains(currentValue)) {
+                ui->treeView->expand(item->index());
+            }
+        }
+    }
+}
+
+void MainWindow::setNewIdList()
+{
+    JSONReaderClass json;
+    QStandardItemModel* model = new QStandardItemModel(nullptr);
+
+    auto abstract_model = ui->treeView->model();
+    model = dynamic_cast<QStandardItemModel*>(abstract_model);
+    QStringList* newIds = new QStringList;
+    if (model != NULL)
+        for (int i = 0; i < model->rowCount(); i++) {
+            QStandardItem* item = model->item(i);
+            QJsonObject obj = json.getObject(item, json.getType(item));
+            auto value = obj.value("id");
+            if (value.isUndefined()) {
+                value = obj.value("id времени");
+                if (value.isUndefined()) {
+                    break;
+                }
+            }
+            newIds->append(QString::number(value.toVariant().toInt()));
+        }
+    if (newIds->count() > 0) {
+
+        ids = newIds;
+    }
 }
