@@ -27,7 +27,7 @@ public:
 
     QStandardItemModel* returnModel;
     QStringList* ids;
-
+    QStringList oldids;
     QStringList validateObject(QJsonObject obj);
 
 private:
@@ -56,10 +56,15 @@ private slots:
 
     void on_MainWindow_destroyed(QObject* arg1);
 
+    void on_searchLine_returnPressed();
+    void setNewIdList();
+    bool isEqualList();
+
 private:
     const static int mko1Max = 30;
     const static int mko2Max = 30;
     const static int mko3Max = 32;
+    QStringList searchList = { "id", "Устройству", "Имени", "Сокращению" };
 };
 
 #endif // MAINWINDOW_H
