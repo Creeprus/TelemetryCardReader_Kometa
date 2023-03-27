@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,16 +27,19 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     jsonreaderclass.cpp \
-    addform.cpp
+    addform.cpp \
+    dbsender.cpp
 
 HEADERS += \
         mainwindow.h \
     jsonreaderclass.h \
-    addform.h
+    addform.h \
+    dbsender.h
 
 FORMS += \
         mainwindow.ui \
-    addform.ui
+    addform.ui \
+    dbsender.ui
 
 RESOURCES += \
     resource.qrc

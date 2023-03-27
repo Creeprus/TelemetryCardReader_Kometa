@@ -1,47 +1,46 @@
 #ifndef JSONREADERCLASS_H
 #define JSONREADERCLASS_H
-#include "QMessageBox"
-#include "QWidget"
-#include "QLabel"
-#include "QObject"
-#include "QString"
+#include "QDebug"
 #include "QFile"
+#include "QFileDialog"
+#include "QFrame"
+#include "QJsonArray"
 #include "QJsonDocument"
 #include "QJsonObject"
-#include "QJsonArray"
 #include "QJsonValue"
-#include "QFileDialog"
-#include "QListWidgetItem"
-#include "QStandardItemModel"
-#include "QDebug"
-#include "QMenu"
-#include "QFrame"
+#include "QLabel"
 #include "QLineEdit"
+#include "QListWidgetItem"
+#include "QMenu"
+#include "QMessageBox"
+#include "QObject"
 #include "QSortFilterProxyModel"
+#include "QStandardItemModel"
+#include "QString"
+#include "QWidget"
+#include <QSqlQuery>
+#include <QtSql/QSqlDatabase>
 
-
-enum SigType
-{
-    REAL=0,
-    INT=1,
-    FLAG=2,
-    META=3,
-    TIME=4,
-    INVALID=5
+enum SigType {
+    REAL = 0,
+    INT = 1,
+    FLAG = 2,
+    META = 3,
+    TIME = 4,
+    INVALID = 5
 };
-class JSONReaderClass
-{
+class JSONReaderClass {
 public:
     JSONReaderClass();
     QJsonDocument readJSON();
 
-    void saveJSON(QString saveFileName,QJsonDocument doc);
+    void saveJSON(QString saveFileName, QJsonDocument doc);
     QJsonDocument getEditJSON(QString saveFileName);
     QJsonDocument currentDoc;
     QJsonObject currentJSONObject;
     QFile file;
     SigType getType(QStandardItem* item);
-    QJsonObject getObject(QStandardItem* item,SigType type);
+    QJsonObject getObject(QStandardItem* item, SigType type);
 };
 
 #endif // JSONREADERCLASS_H

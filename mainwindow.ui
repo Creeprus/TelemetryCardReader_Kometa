@@ -477,7 +477,7 @@
        <bool>true</bool>
       </property>
       <property name="sortingEnabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </item>
@@ -505,6 +505,13 @@
      <widget class="QPushButton" name="pushButton_2">
       <property name="text">
        <string>Сохранить телеметрическую карту</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="dbValuesWindowButton">
+      <property name="text">
+       <string>Задать значения сигналам</string>
       </property>
      </widget>
     </item>

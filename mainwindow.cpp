@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "jsonreaderclass.h"
 #include "ui_mainwindow.h"
+#include <QSqlRecord>
+#include <QSqlResult>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -22,7 +24,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     connect(ui->treeView, &QTreeView::customContextMenuRequested, this,
         &MainWindow::contextMenuExpand);
-
+    // connectToDb();
+    //connectToDbSqlLite();
     ui->searchBox->addItems(searchList);
 }
 
@@ -188,12 +191,18 @@ void MainWindow::ReadTelemetry()
                             QStandardItem* currentItem = new QStandardItem(QString("Значение %1").arg(currentValue));
                             currentItem->setEditable(false);
                             itemToAdd->appendRow(currentItem);
+                            if (key == "значения") {
+                                for (int ix = ar2.size() - 1; ix >= 0; ix--) {
+                                    QStandardItem* item = new QStandardItem(ar2[ix].toVariant().toString());
 
-                            for (int ix = 0; ix < ar2.size(); ix++) {
-                                QStandardItem* item = new QStandardItem(ar2[ix].toVariant().toString());
+                                    currentItem->appendRow(item);
+                                }
+                            } else
+                                for (int ix = 0; ix < ar2.size(); ix++) {
+                                    QStandardItem* item = new QStandardItem(ar2[ix].toVariant().toString());
 
-                                currentItem->appendRow(item);
-                            }
+                                    currentItem->appendRow(item);
+                                }
 
                             j++;
                         }
@@ -211,9 +220,10 @@ void MainWindow::ReadTelemetry()
                 }
             }
         }
-        setNewIdList();
+
         ui->treeView->setModel(model);
         currentModel = model;
+        setNewIdList();
     }
 }
 
@@ -356,10 +366,10 @@ QStringList MainWindow::validateObject(QJsonObject obj)
             if (isInt == false)
                 validationError.append("id может быть только числом");
 
-            QString idString = QString::number(num);
-            if (ids->contains(idString) == true) {
-                validationError.append("id должны быть уникальные");
-            }
+            //            QString idString = QString::number(num);
+            //            if (ids->contains(idString) == true && isEqualList()==false) {
+            //                validationError.append("id должны быть уникальные");
+            //            }
             setNewIdList();
         }
         if (key == "id времени") {
@@ -369,10 +379,10 @@ QStringList MainWindow::validateObject(QJsonObject obj)
             if (isInt == false)
                 validationError.append("id может быть только числом");
 
-            QString idString = QString::number(num);
-            if (ids->contains(idString) == true) {
-                validationError.append("id должны быть уникальные");
-            }
+            //            QString idString = QString::number(num);
+            //            if (ids->contains(idString) == true && isEqualList()==false) {
+            //                validationError.append("id должны быть уникальные");
+            //            }
             setNewIdList();
             //      validationError.append("Ошибки валидации на устройстве с id: " + value.toVariant().toString());
         }
@@ -596,6 +606,62 @@ QStringList MainWindow::validateObject(QJsonObject obj)
     }
     return validationError;
 }
+///
+/// \brief Метод подключения к PostGreSQL
+///
+void MainWindow::connectToDb()
+{
+    //Подключение драйвера
+    db = QSqlDatabase::addDatabase("QPSQL", "PostgreSQL 13");
+    //Имя базы данных
+    db.setDatabaseName("telemetrydata");
+    db.setUserName("postgres");
+    db.setHostName("127.0.0.1");
+    db.setPort(5432);
+    db.setPassword("123");
+    db.open();
+    QString a = db.databaseName();
+    QSqlQuery query(db);
+    query.exec("CREATE TABLE telemetryValues "
+               "("
+               "id integer NOT NULL"
+               ");");
+}
+
+void MainWindow::connectToDbSqlLite()
+{
+    //Подключение драйвера
+    db = QSqlDatabase::addDatabase("QSQLITE");
+    //Имя базы данных
+    db.setDatabaseName("TelemetryData.sqlite");
+    //Открытие подключения и проверка на то,
+    //что база данных открыта для сообщений
+    if (!db.open()) {
+        qDebug() << "Не открылась бд";
+        return;
+    }
+    //Использование класса для работы с запросами
+    //к базе данных
+    QSqlQuery query(db);
+    query.exec("CREATE TABLE telemetryValues "
+               "("
+               "id integer NOT NULL,"
+               "data blob NOT NULL,"
+               "dataValue blob NOT NULL"
+               ");");
+    //Подготовка запроса
+    query.prepare("INSERT INTO telemetryValues (id,data,dataValue) VALUES (:id,:data,:dataValue);");
+    //Переменные, используемые в запросе
+    query.bindValue(":id", 33);
+    query.bindValue(":data", QVariant("test"));
+    query.bindValue(":dataValue", QVariant("test"));
+    //Выполнение запросов
+    query.exec();
+    query.exec("SELECT * FROM telemetryValues;");
+    //Вывод результатов SELECT
+    while (query.next())
+        qDebug() << query.value(0);
+}
 
 void MainWindow::on_MainWindow_destroyed(QObject* arg1)
 {
@@ -670,6 +736,7 @@ void MainWindow::setNewIdList()
 
     auto abstract_model = ui->treeView->model();
     model = dynamic_cast<QStandardItemModel*>(abstract_model);
+    oldids = *ids;
     QStringList* newIds = new QStringList;
     if (model != NULL)
         for (int i = 0; i < model->rowCount(); i++) {
@@ -688,4 +755,30 @@ void MainWindow::setNewIdList()
 
         ids = newIds;
     }
+}
+
+bool MainWindow::isEqualList()
+{
+    for (int i = 0; i < ids->length(); i++) {
+        QString a1 = ids->at(i);
+        QString a2;
+        if (oldids.count() > 0) {
+            a2 = oldids.at(i);
+        } else {
+            a2 = a1;
+        }
+        if (a1 != a2) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void MainWindow::on_dbValuesWindowButton_clicked()
+{
+    dbssender->model = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
+    dbssender->currentDoc = currentDoc;
+
+    dbssender->initValues();
+    dbssender->exec();
 }

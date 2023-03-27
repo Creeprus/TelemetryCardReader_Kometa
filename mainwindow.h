@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "addform.h"
+#include "dbsender.h"
 #include "jsonreaderclass.h"
 #include <QMainWindow>
 
@@ -24,14 +25,17 @@ public:
     QMenu* contextMenu = new QMenu(this);
     QAction* addTelemetryRuleAction;
     QStandardItemModel* currentModel;
-
+    QSqlDatabase db;
     QStandardItemModel* returnModel;
     QStringList* ids;
-
+    QStringList oldids;
     QStringList validateObject(QJsonObject obj);
+    void connectToDb();
+    void connectToDbSqlLite();
 
 private:
     AddForm* addform = new AddForm();
+    DBSender* dbssender = new DBSender();
 
 private slots:
 
@@ -58,6 +62,9 @@ private slots:
 
     void on_searchLine_returnPressed();
     void setNewIdList();
+    bool isEqualList();
+
+    void on_dbValuesWindowButton_clicked();
 
 private:
     const static int mko1Max = 30;

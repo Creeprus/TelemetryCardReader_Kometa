@@ -46,7 +46,7 @@ void JSONReaderClass::saveJSON( QString saveFileName,QJsonDocument doc)
     }
 
     jsonFile.write(doc.toJson(QJsonDocument::Indented));
-
+    qDebug() << doc;
     jsonFile.close();
 }
 
@@ -297,12 +297,18 @@ QJsonObject JSONReaderClass::getObject(QStandardItem *item, SigType type)
                    }
                    if(item->child(i)->text()=="значения" )
                    {
-                       for(int j=0;j<item->child(i)->rowCount();j++)
-                       {
-
-                           intArray.append(QJsonValue(item->child(i)->child(j)->child(0)->text()));
-                           intArray.append(QJsonValue(item->child(i)->child(j)->child(1)->text().toInt()));
-
+                       for (int j = 0; j < item->child(i)->rowCount(); j++) {
+                           qDebug() << ("First " + item->child(i)->child(j)->child(0)->text());
+                           qDebug() << ("Second " + item->child(i)->child(j)->child(1)->text());
+                           bool conv = true;
+                           item->child(i)->child(j)->child(0)->text().toInt(&conv);
+                           if (conv == false) {
+                               intArray.append(QJsonValue(item->child(i)->child(j)->child(1)->text().toInt()));
+                               intArray.append(QJsonValue(item->child(i)->child(j)->child(0)->text()));
+                           } else {
+                               intArray.append(QJsonValue(item->child(i)->child(j)->child(0)->text().toInt()));
+                               intArray.append(QJsonValue(item->child(i)->child(j)->child(1)->text()));
+                           }
 
 
                            arrayOfArrays.append(QJsonValue(intArray));
