@@ -161,8 +161,6 @@ QJsonObject JSONReaderClass::getObject(QStandardItem *item, SigType type)
                if(item->child(i)->text()=="тип" ||
                        item->child(i)->text()=="имя" ||
                        item->child(i)->text()=="устройство"
-                     //  item->child(i)->text()=="сокращение" ||
-                     //  item->child(i)->text()=="биты"
                      )
                {
                    finalObject.insert(item->child(i)->text(),

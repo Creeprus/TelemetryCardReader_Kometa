@@ -1,7 +1,9 @@
 #ifndef DBSENDER_H
 #define DBSENDER_H
 
+#include "addform.h"
 #include "jsonreaderclass.h"
+
 #include <QWidget>
 
 namespace Ui {
@@ -27,6 +29,7 @@ public:
     QStringList itemTypes;
     void sendToDb(int id, QVariant data, QVariant dataValue);
 
+    void sendToDb(int id, QVariant data, QVariant dataValue, QVariant dataScriptValue, QVariant dataScriptColor);
 private slots:
     void on_senToDbButton_clicked();
 

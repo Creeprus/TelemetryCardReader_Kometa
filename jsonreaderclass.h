@@ -17,6 +17,7 @@
 #include "QSortFilterProxyModel"
 #include "QStandardItemModel"
 #include "QString"
+#include "QVariant"
 #include "QWidget"
 #include <QSqlQuery>
 #include <QtSql/QSqlDatabase>

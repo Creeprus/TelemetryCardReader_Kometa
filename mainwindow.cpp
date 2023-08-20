@@ -24,8 +24,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     connect(ui->treeView, &QTreeView::customContextMenuRequested, this,
         &MainWindow::contextMenuExpand);
-    // connectToDb();
-    //connectToDbSqlLite();
     ui->searchBox->addItems(searchList);
 }
 
@@ -94,15 +92,6 @@ void MainWindow::addTelemetryRule()
 
 void MainWindow::popupForm()
 {
-    //    QFrame* popup=new QFrame(this,Qt::Popup|Qt::Window);
-    //    popup->resize(300,300);
-    //    QLineEdit *tmp=new QLineEdit(popup);
-    //    connect(tmp,SIGNAL(returnPressed()),popup,SLOT(hide()));
-    //    tmp->setGeometry(50,50,130,30);
-    //    tmp->setFocus();
-    //    auto cur=QCursor::pos();
-    //    popup->move(cur);
-    //    popup->show();
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -146,6 +135,7 @@ void MainWindow::ReadTelemetry()
                 auto key = obj.keys().at(j);
                 auto value = obj.value(key);
                 if (value.isString() && key != "тип") {
+                    itemToAdd = new QStandardItem(key);
                     itemToAdd->setEditable(false);
                     itemToAdd = new QStandardItem(key);
                     itemToAdd->setEditable(true);
@@ -170,8 +160,7 @@ void MainWindow::ReadTelemetry()
                     itemHeader->appendRow(itemToAdd);
                     itemToAdd->appendRow(new QStandardItem(value.toVariant().toString()));
                     itemToAdd->setEditable(false);
-                    //ids->insert(ids->size(),value.toVariant().toInt());
-                    // ids->append(value.toVariant().toString());
+
 
                 } else if (value.isArray()) {
 
@@ -249,9 +238,6 @@ void MainWindow::itemDataValidation(const QModelIndex& topLeft, const QModelInde
         QMessageBox* box = new QMessageBox();
         box->setTextFormat(Qt::RichText);
         box->about(this, "Ошибка валидации", validationString);
-        //  box->setText(validationString);
-
-        //        box->show();
     }
 }
 
@@ -279,7 +265,6 @@ void MainWindow::deleteTelemetryRule()
     }
     int idx = curIndex.row();
     model->removeRow(idx);
-    // currentModel=model;
     ids->removeAt(idx);
     addform->model = dynamic_cast<QStandardItemModel*>(model);
 }
@@ -299,8 +284,6 @@ QJsonObject MainWindow::toJsonObject(QStandardItem* item)
     JSONReaderClass jsonReader;
     QJsonObject obj;
     QVector<QStandardItem*> c = childrenToVector(item);
-    //    for (auto it = children.begin(); it != children.end(); ++it) {
-    //    }
     if (
         std::find_if(c.begin(), c.end(), [](QStandardItem* item) {
             qDebug() << item->text();
@@ -315,20 +298,7 @@ QJsonObject MainWindow::toJsonObject(QStandardItem* item)
     obj = jsonReader.getObject(item, jsonReader.getType(item));
     return obj;
 }
-//Построчное выборочное удаление, если вдруг понадобится
-//void MainWindow::deleteTelemetryRule()
-//{
 
-//    QAbstractItemModel* model=ui->treeView->model();
-//    QModelIndex curIndex=ui->treeView->currentIndex();
-//    int idx=curIndex.row();
-
-//    model->removeRow(idx,curIndex.parent());
-//    ui->treeView->setModel(model);
-
-//}
-
-//Как вариант вернуть QStringList с валидационными ошибками
 QStringList MainWindow::validateObject(QJsonObject obj)
 {
     QStringList validationError;
@@ -379,10 +349,6 @@ QStringList MainWindow::validateObject(QJsonObject obj)
             if (isInt == false)
                 validationError.append("id может быть только числом");
 
-            //            QString idString = QString::number(num);
-            //            if (ids->contains(idString) == true && isEqualList()==false) {
-            //                validationError.append("id должны быть уникальные");
-            //            }
             setNewIdList();
             //      validationError.append("Ошибки валидации на устройстве с id: " + value.toVariant().toString());
         }
@@ -647,14 +613,16 @@ void MainWindow::connectToDbSqlLite()
                "("
                "id integer NOT NULL,"
                "data blob NOT NULL,"
-               "dataValue blob NOT NULL"
+               "dataValue blob NOT NULL,"
+               "dataScriptValue blob NOT NULL"
                ");");
     //Подготовка запроса
-    query.prepare("INSERT INTO telemetryValues (id,data,dataValue) VALUES (:id,:data,:dataValue);");
+    query.prepare("INSERT INTO telemetryValues (id,data,dataValue,dataScriptValue) VALUES (:id,:data,:dataValue,:dataScriptValue);");
     //Переменные, используемые в запросе
     query.bindValue(":id", 33);
     query.bindValue(":data", QVariant("test"));
     query.bindValue(":dataValue", QVariant("test"));
+    query.bindValue(":dataScriptValue", QVariant(""));
     //Выполнение запросов
     query.exec();
     query.exec("SELECT * FROM telemetryValues;");
@@ -776,8 +744,35 @@ bool MainWindow::isEqualList()
 
 void MainWindow::on_dbValuesWindowButton_clicked()
 {
+    QStandardItemModel* model = new QStandardItemModel(nullptr);
+
+    QJsonDocument doc;
+    JSONReaderClass json;
+    QJsonArray currentArray;
+
+    auto abstract_model = ui->treeView->model();
+    model = dynamic_cast<QStandardItemModel*>(abstract_model);
+
+    if (model == nullptr) {
+        QMessageBox* box;
+        box->about(this, "Нету сигналов", "Нельзя задать значения сигналов, если их нет");
+        return;
+        return;
+    }
+    for (int i = 0; i < model->rowCount(); i++) {
+        auto item = model->item(i, 0);
+        QJsonObject obj = json.getObject(item, json.getType(item));
+        QStringList validationError = validateObject(obj);
+        if (validationError.count() > 1) {
+            QMessageBox* box;
+            box->about(this, "Ошибки валидации", "Нельзя задать значения сигналов пока есть ошибки валидации");
+            return;
+        }
+        currentArray.append(toJsonObject(item));
+    }
+    doc.setArray(currentArray);
     dbssender->model = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
-    dbssender->currentDoc = currentDoc;
+    dbssender->currentDoc = doc;
 
     dbssender->initValues();
     dbssender->exec();
